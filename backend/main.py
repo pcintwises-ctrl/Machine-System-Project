@@ -98,6 +98,16 @@ async def get_machine(machine_id: str):
         return machine
     raise HTTPException(status_code=404, detail="Machine ID not found")
 
+# เพิ่ม Endpoint สำหรับลบข้อมูลทั้งหมด
+@app.delete("/clear-database")
+async def clear_database():
+    try:
+        # ลบข้อมูลทั้งหมดใน collection
+        result = await machine_collection.delete_many({})
+        return {"status": "Success", "message": f"ลบข้อมูลทั้งหมดเรียบร้อยแล้ว ({result.deleted_count} รายการ)"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ส่วนสำหรับรัน Server
 if __name__ == "__main__":
     import uvicorn

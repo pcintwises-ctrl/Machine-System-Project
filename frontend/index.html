@@ -27,6 +27,9 @@
         
         #log-container::-webkit-scrollbar { width: 6px; }
         #log-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Preview Image Style */
+        #image-preview { max-height: 150px; object-fit: contain; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 min-h-screen flex text-slate-800 dark:text-slate-100">
@@ -96,13 +99,17 @@
                         <div class="space-y-4">
                             <input type="text" id="m-id-input" placeholder="Machine ID / Unit ID" class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-red-500 text-sm">
                             
-                            <div class="border-2 border-dashed border-gray-300 dark:border-slate-600 p-8 rounded-2xl text-center hover:border-red-400 cursor-pointer relative bg-gray-50 dark:bg-slate-700/30">
-                                <input type="file" id="file-input" onchange="displayFileName()" class="absolute inset-0 opacity-0 cursor-pointer">
-                                <div class="flex flex-col items-center">
+                            <div class="border-2 border-dashed border-gray-300 dark:border-slate-600 p-4 rounded-2xl text-center hover:border-red-400 cursor-pointer relative bg-gray-50 dark:bg-slate-700/30 min-h-[150px] flex items-center justify-center">
+                                <input type="file" id="file-input" onchange="previewSelectedImage()" class="absolute inset-0 opacity-0 cursor-pointer z-20">
+                                
+                                <div id="upload-placeholder" class="flex flex-col items-center">
                                     <span class="text-4xl mb-2">📸</span>
-                                    <p class="text-gray-400 text-sm">คลิกเพื่อถ่ายรูปหรือเลือกรูปปัญหา</p>
+                                    <p class="text-gray-400 text-sm font-medium">คลิกเพื่อเลือกรูปภาพปัญหา</p>
                                 </div>
+
+                                <img id="image-preview" src="" class="hidden w-full h-full rounded-xl z-10">
                             </div>
+
                             <div id="file-path-display" class="text-xs text-blue-500 font-medium truncate italic px-2">ยังไม่ได้เลือกไฟล์...</div>
                             
                             <textarea id="desc-input" placeholder="บันทึกรายละเอียดเพิ่มเติม..." class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none h-20 text-sm"></textarea>
@@ -123,7 +130,7 @@
                         <input type="text" id="search-id" placeholder="Enter Machine ID..." class="flex-1 p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none">
                         <button onclick="searchMachine()" class="bg-slate-800 dark:bg-slate-700 text-white px-8 rounded-xl font-bold">Search</button>
                     </div>
-                    <div id="result-area" class="hidden animate-in zoom-in duration-300">
+                    <div id="result-area" class="hidden">
                         <div class="w-full aspect-video bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden border dark:border-slate-700 mb-6">
                             <img id="res-img" src="" class="w-full h-full object-contain">
                         </div>
@@ -137,12 +144,19 @@
             <div id="database-tab" class="tab-content">
                 <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border-t-4 border-indigo-500">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h2 class="text-2xl font-bold">Database Records</h2>
-                        <div class="relative w-full md:w-64">
-                            <input type="text" id="db-search-input" onkeyup="filterDatabase()" placeholder="ค้นหา Machine ID..." 
-                                class="w-full pl-4 pr-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-700 text-sm outline-none">
+                        <div class="flex items-center gap-4">
+                            <h2 class="text-2xl font-bold">Database Records</h2>
+                            <button onclick="clearAllData()" class="px-4 py-1.5 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition-all">
+                                🗑️ Clear All
+                            </button>
                         </div>
-                        <button onclick="fetchAllData()" class="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-full hover:rotate-180 transition-transform duration-500">🔄</button>
+                        <div class="flex items-center gap-3">
+                            <div class="relative w-full md:w-64">
+                                <input type="text" id="db-search-input" onkeyup="filterDatabase()" placeholder="ค้นหา Machine ID..." 
+                                    class="w-full pl-4 pr-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-700 text-sm outline-none">
+                            </div>
+                            <button onclick="fetchAllData()" class="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-full hover:rotate-180 transition-transform duration-500">🔄</button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto rounded-xl border dark:border-slate-700">
@@ -156,7 +170,7 @@
                                 </tr>
                             </thead>
                             <tbody id="database-body" class="divide-y dark:divide-slate-700">
-                                <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No data synced yet.</td></tr>
+                                <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Syncing with MongoDB...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -170,7 +184,7 @@
                 <button onclick="clearLogs()" class="text-slate-500 hover:text-white transition">Clear</button>
             </div>
             <div id="log-container" class="h-24 overflow-y-auto space-y-1">
-                <p class="text-emerald-500">[System] Dashboard initialized successfully.</p>
+                <p class="text-emerald-500">[System] Dashboard initialized.</p>
             </div>
         </div>
     </div>
@@ -184,10 +198,47 @@
     </div>
 
     <script>
-        // --- CONFIGURATION: แก้ไข URL ของคุณที่นี่ ---
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
 
-        // --- 1. System Logging ---
+        // --- 1. Image Preview System ---
+        function previewSelectedImage() {
+            const fileInput = document.getElementById('file-input');
+            const preview = document.getElementById('image-preview');
+            const placeholder = document.getElementById('upload-placeholder');
+            const display = document.getElementById('file-path-display');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+                display.innerText = "📁 Selected: " + fileInput.files[0].name;
+                display.className = "text-xs text-green-500 italic px-2";
+                addLog(`Photo selected: ${fileInput.files[0].name}`, "process");
+            }
+        }
+
+        // --- 2. Database Clear All Function ---
+        async function clearAllData() {
+            const confirmAction = confirm("🚨 คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเครื่องจักรทั้งหมดทิ้ง? การกระทำนี้ไม่สามารถย้อนคืนได้!");
+            if (!confirmAction) return;
+
+            addLog("Attempting to wipe database...", "process");
+            try {
+                // สมมติว่า Backend มี endpoint /clear-database
+                const res = await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
+                const data = await res.json();
+                addLog(data.message || "Database cleared successfully", "success");
+                fetchAllData(); // รีเฟรชตาราง
+            } catch (err) {
+                addLog("Error: Could not clear database. Make sure Backend supports DELETE.", "error");
+            }
+        }
+
+        // --- 3. Core Logic ---
         function addLog(message, type = 'info') {
             const container = document.getElementById('log-container');
             const time = new Date().toLocaleTimeString('th-TH', { hour12: false });
@@ -204,12 +255,9 @@
 
         function clearLogs() { document.getElementById('log-container').innerHTML = `<p class="text-emerald-500">[System] Log cleared.</p>`; }
 
-        // --- 2. Theme & UI Logic ---
         function toggleTheme() {
-            const html = document.documentElement;
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-            addLog(`Theme toggled to ${html.classList.contains('dark') ? 'Dark' : 'Light'}`);
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
         }
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
 
@@ -221,41 +269,27 @@
         function showTab(id) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            addLog(`Navigation: Switch to ${id}`);
+            addLog(`Navigation: ${id}`);
         }
 
-        function displayFileName() {
-            const fileInput = document.getElementById('file-input');
-            const display = document.getElementById('file-path-display');
-            if (fileInput.files.length > 0) {
-                display.innerText = "📁 Selected: " + fileInput.files[0].name;
-                display.className = "text-xs text-green-500 italic px-2";
-                addLog(`File attached: ${fileInput.files[0].name}`);
-            }
-        }
-
-        // --- 3. Troubleshooting Logic (Tab 1) ---
         function searchTroubleshoot() {
             const issue = document.getElementById('issue-search-input').value.trim();
             const resultArea = document.getElementById('troubleshoot-result');
             const causeOut = document.getElementById('cause-output');
             const solOut = document.getElementById('solution-output-v2');
 
-            if (!issue) return addLog("Validation: Please specify the problem.", "error");
+            if (!issue) return addLog("Validation: Please specify the issue.", "error");
 
-            addLog(`Analyzing issue: ${issue}...`, "process");
-            let cause = "ไม่พบข้อมูลที่ตรงกันในฐานข้อมูลเบื้องต้น";
-            let solution = "โปรดติดต่อวิศวกรซ่อมบำรุง หรือตรวจสอบคู่มือการใช้งานประจำเครื่อง";
+            addLog(`Analyzing: ${issue}`, "process");
+            let cause = "ไม่พบข้อมูลที่ตรงกัน";
+            let solution = "โปรดติดต่อวิศวกรซ่อมบำรุง";
 
             if (issue.includes("ร้อน") || issue.includes("heat")) {
-                cause = "ระบบระบายอากาศขัดข้อง หรือทำงานเกินกำลัง (Overload)";
-                solution = "1. ตรวจสอบพัดลมระบายอากาศ 2. เช็คระดับน้ำมันหล่อลื่น 3. พักเครื่อง 15 นาที";
+                cause = "ระบบระบายอากาศขัดข้อง หรือทำงานเกินกำลัง";
+                solution = "1. ตรวจพัดลม 2. เช็คน้ำมันหล่อลื่น 3. พักเครื่อง 15 นาที";
             } else if (issue.includes("เสียง") || issue.includes("noise")) {
-                cause = "ลูกปืนเสื่อมสภาพ หรือมีน็อตยึดฐานหลวม";
-                solution = "1. ตรวจเช็คตำแหน่งลูกปืน 2. ขันน็อตโครงสร้างให้แน่น 3. อัดจาระบีตามจุดหมุน";
-            } else if (issue.includes("ไฟ") || issue.includes("power")) {
-                cause = "แรงดันไฟฟ้าไม่คงที่ หรือฟิวส์ขาด";
-                solution = "1. ตรวจสอบเบรกเกอร์ 2. วัดแรงดันไฟฟ้าขาเข้า 3. เปลี่ยนฟิวส์ถ้าจำเป็น";
+                cause = "ลูกปืนเสื่อมสภาพ หรือน็อตหลวม";
+                solution = "1. เช็คตำแหน่งลูกปืน 2. ขันน็อตฐาน 3. อัดจาระบี";
             }
 
             causeOut.innerText = cause;
@@ -264,50 +298,50 @@
             addLog("Analysis complete.", "success");
         }
 
-        // --- 4. Database & Upload Logic ---
         async function uploadData() {
             const file = document.getElementById('file-input').files[0];
             const mId = document.getElementById('m-id-input').value;
-            const desc = document.getElementById('desc-input').value;
             const btn = document.getElementById('upload-btn');
             const btnText = document.getElementById('btn-text');
-            const spinner = document.getElementById('btn-spinner');
 
-            if(!file || !mId) return addLog("Validation Error: ID and Photo are mandatory.", "error");
+            if(!file || !mId) return addLog("Validation Error: ID and Photo required.", "error");
 
-            btn.disabled = true; btnText.innerText = "Uploading..."; spinner.classList.remove('hidden');
-            addLog(`Pushing report for ${mId} to server...`, "process");
+            btn.disabled = true; btnText.innerText = "Sending...";
+            addLog(`Uploading data for ${mId}...`, "process");
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('description', desc);
+            formData.append('description', document.getElementById('desc-input').value);
             formData.append('machine_id', mId);
 
             try {
                 const res = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
                 const data = await res.json();
                 addLog(`Success: ${data.message}`, "success");
-                // Reset form
-                document.getElementById('file-input').value = ""; 
+                
+                // Reset Form and Preview
                 document.getElementById('m-id-input').value = ""; 
                 document.getElementById('desc-input').value = "";
+                document.getElementById('file-input').value = "";
+                document.getElementById('image-preview').src = "";
+                document.getElementById('image-preview').classList.add('hidden');
+                document.getElementById('upload-placeholder').classList.remove('hidden');
                 document.getElementById('file-path-display').innerText = "ยังไม่ได้เลือกไฟล์...";
             } catch (err) {
-                addLog("Network Error: Could not reach backend server.", "error");
+                addLog("Upload failed.", "error");
             } finally {
-                btn.disabled = false; btnText.innerText = "Send Report to Database"; spinner.classList.add('hidden');
+                btn.disabled = false; btnText.innerText = "Send Report to Database";
             }
         }
 
         async function fetchAllData() {
-            addLog("Syncing with MongoDB...", "process");
             const tbody = document.getElementById('database-body');
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const machines = await res.json();
                 tbody.innerHTML = '';
                 if (machines.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records in database.</td></tr>';
                     return;
                 }
                 machines.forEach(m => {
@@ -321,14 +355,9 @@
                             <td class="p-4 text-right">
                                 <button onclick="viewMachineDetails('${m.machine_id}')" class="text-[10px] bg-slate-200 dark:bg-slate-600 px-3 py-1 rounded-full hover:bg-indigo-500 hover:text-white transition">View</button>
                             </td>
-                        </tr>
-                    `;
+                        </tr>`;
                 });
-                addLog(`Synced ${machines.length} records.`, "success");
-            } catch (err) {
-                addLog("Sync failed.", "error");
-                tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-400 italic">Server Connection Failed</td></tr>';
-            }
+            } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-400">Sync Error</td></tr>'; }
         }
 
         function filterDatabase() {
@@ -336,25 +365,22 @@
             const rows = document.getElementById("machine-table").getElementsByTagName("tr");
             for (let i = 1; i < rows.length; i++) {
                 const idCell = rows[i].getElementsByTagName("td")[0];
-                if (idCell) {
-                    rows[i].style.display = idCell.innerText.toUpperCase().includes(val) ? "" : "none";
-                }
+                if (idCell) rows[i].style.display = idCell.innerText.toUpperCase().includes(val) ? "" : "none";
             }
         }
 
         async function searchMachine() {
             const id = document.getElementById('search-id').value;
             if(!id) return;
-            addLog(`Querying: ${id}...`, "process");
             try {
                 const res = await fetch(`${BACKEND_URL}/get-machine/${id}`);
                 const data = await res.json();
-                if(data.detail === "Not Found") return addLog("Error: Machine not found.", "error");
+                if(data.detail === "Not Found") return addLog("Error: ID not found.", "error");
                 document.getElementById('result-area').classList.remove('hidden');
                 document.getElementById('res-img').src = data.url;
                 document.getElementById('res-desc').innerText = "Description: " + data.description;
-                addLog(`Record retrieved for ${id}.`, "success");
-            } catch (err) { addLog("Network error.", "error"); }
+                addLog(`Found ${id}`, "success");
+            } catch (err) { addLog("Search error", "error"); }
         }
 
         function viewMachineDetails(id) {
@@ -363,7 +389,6 @@
             searchMachine();
         }
 
-        // Calendar Generator
         function generateCalendar() {
             const now = new Date();
             document.getElementById('calendar-title').innerText = now.toLocaleString('th-TH', { month: 'short', year: 'numeric' });
