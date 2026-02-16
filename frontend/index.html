@@ -257,7 +257,7 @@
             addLog("Database sync in progress...", "process");
             const tbody = document.getElementById('database-body');
             try {
-                const res = await fetch('https://machine-backend-ay9v.onrender.com/get-all-machines');
+                const res = await fetch('https://machine-api-fcm8.onrender.com/get-all-machines');
                 allMachinesData = await res.json();
                 tbody.innerHTML = '';
                 if (allMachinesData.length === 0) {
@@ -310,7 +310,7 @@
             formData.append('machine_id', mId);
 
             try {
-                const res = await fetch('https://machine-backend-ay9v.onrender.com/upload', { method: 'POST', body: formData });
+                const res = await fetch('https://machine-api-fcm8.onrender.com/upload', { method: 'POST', body: formData });
                 const data = await res.json();
                 addLog(`Server Response: ${data.message}`, "success");
                 document.getElementById('file-input').value = ""; document.getElementById('m-id-input').value = ""; document.getElementById('desc-input').value = "";
@@ -326,7 +326,7 @@
             const id = document.getElementById('search-id').value;
             addLog(`Querying database for: ${id}...`, "process");
             try {
-                const res = await fetch(`https://machine-backend-ay9v.onrender.com/get-machine/${id}`);
+                const res = await fetch(`https://machine-api-fcm8.onrender.com/get-machine/${id}`);
                 const data = await res.json();
                 if(data.error) return addLog(`Query Error: ${data.error}`, "error");
                 document.getElementById('result-area').classList.remove('hidden');
