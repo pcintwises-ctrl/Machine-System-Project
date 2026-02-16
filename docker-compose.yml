@@ -1,0 +1,10 @@
+services:
+  api:
+    build: ./backend
+    env_file:
+      - ./backend/.env  # เพิ่มบรรทัดนี้
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    restart: always

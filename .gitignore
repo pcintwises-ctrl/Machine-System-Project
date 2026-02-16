@@ -1,0 +1,11 @@
+# ความลับและค่า Config
+.env
+
+# ไฟล์ที่เกิดขึ้นระหว่างรัน
+backend/uploads/
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
+env/
