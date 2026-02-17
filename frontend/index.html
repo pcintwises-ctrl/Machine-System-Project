@@ -30,6 +30,10 @@
 
         /* Preview Image Style */
         #image-preview { max-height: 150px; object-fit: contain; }
+
+        /* Suggestion Box Style */
+        .suggestion-item:hover { background-color: #f3f4f6; cursor: pointer; }
+        .dark .suggestion-item:hover { background-color: #334155; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 min-h-screen flex text-slate-800 dark:text-slate-100">
@@ -68,28 +72,32 @@
         <div class="flex-grow">
             <div id="troubleshoot-tab" class="tab-content active animate-in fade-in duration-500">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
                     <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border-t-4 border-emerald-500">
                         <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">🔍 Issue Troubleshooting</h2>
                         <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="text" id="model-input" placeholder="Model (เช่น SONY-X1)" class="p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <input type="text" id="line-input" placeholder="Line / Process" class="p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                            <div class="relative">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase">Machine ID / Model</p>
+                                <input type="text" id="model-input" autocomplete="off" 
+                                       placeholder="พิมพ์เพื่อค้นหาชื่อเครื่องจักร..." 
+                                       oninput="handleSuggest(this.value)"
+                                       class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                
+                                <ul id="suggestion-list" class="absolute z-50 w-full bg-white dark:bg-slate-700 border dark:border-slate-600 mt-1 rounded-xl shadow-lg hidden overflow-hidden">
+                                </ul>
                             </div>
-                            <input type="text" id="issue-search-input" placeholder="ระบุอาการเสีย หรือปัญหาที่พบ..." class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                            
+                            <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase">Issue / Problem</p>
+                            <input type="text" id="issue-search-input" placeholder="ระบุอาการเสีย หรือปัญหาที่พบ..." 
+                                   class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                             
                             <button onclick="searchTroubleshoot()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition flex justify-center items-center gap-2">
-                                <span>Search Solution</span>
+                                <span>Search Database Solution</span>
                             </button>
 
-                            <div id="troubleshoot-result" class="hidden mt-6 space-y-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800 rounded-2xl">
-                                <div>
-                                    <p class="text-[10px] uppercase font-bold text-emerald-600 mb-1">สาเหตุที่เป็นไปได้ (Cause)</p>
-                                    <p id="cause-output" class="text-sm font-medium text-slate-700 dark:text-slate-200">-</p>
-                                </div>
-                                <div class="border-t border-emerald-100 dark:border-emerald-800 pt-3">
-                                    <p class="text-[10px] uppercase font-bold text-blue-600 mb-1">วิธีแก้ไข (Solution)</p>
-                                    <p id="solution-output-v2" class="text-sm font-medium text-slate-700 dark:text-slate-200">-</p>
-                                </div>
+                            <div id="troubleshoot-result" class="hidden mt-6 space-y-4">
+                                <p class="text-xs font-bold text-slate-400 border-b pb-2">พบผลลัพธ์ในฐานข้อมูล:</p>
+                                <div id="troubleshoot-cards" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                             </div>
                         </div>
                     </div>
@@ -112,7 +120,7 @@
 
                             <div id="file-path-display" class="text-xs text-blue-500 font-medium truncate italic px-2">ยังไม่ได้เลือกไฟล์...</div>
                             
-                            <textarea id="desc-input" placeholder="บันทึกรายละเอียดเพิ่มเติม..." class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none h-20 text-sm"></textarea>
+                            <textarea id="desc-input" placeholder="บันทึกรายละเอียดเพิ่มเติมเกี่ยวกับปัญหา..." class="w-full p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none h-20 text-sm"></textarea>
 
                             <button id="upload-btn" onclick="uploadData()" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-red-700 active:scale-95 transition flex justify-center items-center gap-2">
                                 <span id="btn-text">Send Report to Database</span>
@@ -130,7 +138,7 @@
                         <input type="text" id="search-id" placeholder="Enter Machine ID..." class="flex-1 p-3 border dark:border-slate-600 rounded-xl dark:bg-slate-700 outline-none">
                         <button onclick="searchMachine()" class="bg-slate-800 dark:bg-slate-700 text-white px-8 rounded-xl font-bold">Search</button>
                     </div>
-                    <div id="result-area" class="hidden">
+                    <div id="result-area" class="hidden animate-in zoom-in duration-300">
                         <div class="w-full aspect-video bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden border dark:border-slate-700 mb-6">
                             <img id="res-img" src="" class="w-full h-full object-contain">
                         </div>
@@ -153,7 +161,7 @@
                         <div class="flex items-center gap-3">
                             <div class="relative w-full md:w-64">
                                 <input type="text" id="db-search-input" onkeyup="filterDatabase()" placeholder="ค้นหา Machine ID..." 
-                                    class="w-full pl-4 pr-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-700 text-sm outline-none">
+                                    class="w-full pl-4 pr-4 py-2 border dark:border-slate-600 rounded-xl dark:bg-slate-700 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                             </div>
                             <button onclick="fetchAllData()" class="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-full hover:rotate-180 transition-transform duration-500">🔄</button>
                         </div>
@@ -162,7 +170,7 @@
                     <div class="overflow-x-auto rounded-xl border dark:border-slate-700">
                         <table class="w-full text-left border-collapse" id="machine-table">
                             <thead>
-                                <tr class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm">
+                                <tr class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-bold uppercase">
                                     <th class="p-4">Machine ID</th>
                                     <th class="p-4 text-center">Preview</th>
                                     <th class="p-4">Description</th>
@@ -170,7 +178,7 @@
                                 </tr>
                             </thead>
                             <tbody id="database-body" class="divide-y dark:divide-slate-700">
-                                <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Syncing with MongoDB...</td></tr>
+                                <tr><td colspan="4" class="p-10 text-center text-slate-400 italic">Syncing with MongoDB Atlas...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -184,7 +192,7 @@
                 <button onclick="clearLogs()" class="text-slate-500 hover:text-white transition">Clear</button>
             </div>
             <div id="log-container" class="h-24 overflow-y-auto space-y-1">
-                <p class="text-emerald-500">[System] Dashboard initialized.</p>
+                <p class="text-emerald-500">[System] Dashboard initialized successfully.</p>
             </div>
         </div>
     </div>
@@ -192,13 +200,14 @@
     <div class="theme-switch-container">
         <span class="text-sm opacity-50">☀️</span>
         <button onclick="toggleTheme()" id="theme-btn" class="w-12 h-6 bg-slate-300 dark:bg-slate-600 rounded-full relative transition-colors duration-300">
-            <div id="switch-dot" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 transform dark:translate-x-6"></div>
+            <div id="switch-dot" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 transform dark:translate-x-6 shadow-sm"></div>
         </button>
         <span class="text-sm opacity-50">🌙</span>
     </div>
 
     <script>
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
+        let machineNames = []; // Store names for auto-suggestion
 
         // --- 1. Image Preview System ---
         function previewSelectedImage() {
@@ -221,24 +230,162 @@
             }
         }
 
-        // --- 2. Database Clear All Function ---
-        async function clearAllData() {
-            const confirmAction = confirm("🚨 คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเครื่องจักรทั้งหมดทิ้ง? การกระทำนี้ไม่สามารถย้อนคืนได้!");
-            if (!confirmAction) return;
-
-            addLog("Attempting to wipe database...", "process");
+        // --- 2. Auto-suggestion System ---
+        async function loadMachineNames() {
             try {
-                // สมมติว่า Backend มี endpoint /clear-database
-                const res = await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
-                const data = await res.json();
-                addLog(data.message || "Database cleared successfully", "success");
-                fetchAllData(); // รีเฟรชตาราง
-            } catch (err) {
-                addLog("Error: Could not clear database. Make sure Backend supports DELETE.", "error");
+                const res = await fetch(`${BACKEND_URL}/get-machine-names`);
+                machineNames = await res.json();
+            } catch (err) { console.error("Load names failed"); }
+        }
+
+        function handleSuggest(value) {
+            const list = document.getElementById('suggestion-list');
+            list.innerHTML = '';
+            if (!value) { list.classList.add('hidden'); return; }
+
+            const filtered = machineNames.filter(name => 
+                name.toLowerCase().includes(value.toLowerCase())
+            );
+
+            if (filtered.length > 0) {
+                filtered.forEach(name => {
+                    const li = document.createElement('li');
+                    li.className = 'p-3 hover:bg-emerald-50 dark:hover:bg-slate-600 cursor-pointer text-sm border-b dark:border-slate-600 last:border-none suggestion-item';
+                    li.textContent = name;
+                    li.onclick = () => {
+                        document.getElementById('model-input').value = name;
+                        list.classList.add('hidden');
+                    };
+                    list.appendChild(li);
+                });
+                list.classList.remove('hidden');
+            } else {
+                list.classList.add('hidden');
             }
         }
 
-        // --- 3. Core Logic ---
+        // --- 3. Database Functions ---
+        async function fetchAllData() {
+            const tbody = document.getElementById('database-body');
+            try {
+                const res = await fetch(`${BACKEND_URL}/get-all-machines`);
+                const machines = await res.json();
+                tbody.innerHTML = '';
+                if (machines.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records in database.</td></tr>';
+                    return;
+                }
+                machines.forEach(m => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                            <td class="p-4 font-bold text-indigo-500">${m.machine_id}</td>
+                            <td class="p-4 text-center">
+                                <img src="${m.url}" class="w-12 h-8 object-cover rounded shadow-sm mx-auto">
+                            </td>
+                            <td class="p-4 text-xs opacity-70">${m.description || '-'}</td>
+                            <td class="p-4 text-right">
+                                <button onclick="viewMachineDetails('${m.machine_id}')" class="text-[10px] bg-slate-200 dark:bg-slate-600 px-3 py-1 rounded-full hover:bg-indigo-500 hover:text-white transition font-bold">View</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-400">Sync Error</td></tr>'; }
+        }
+
+        async function clearAllData() {
+            const confirmAction = confirm("🚨 คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลทั้งหมด? ไม่สามารถย้อนคืนได้!");
+            if (!confirmAction) return;
+
+            addLog("Wiping database...", "process");
+            try {
+                const res = await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
+                const data = await res.json();
+                addLog(data.message || "Database cleared", "success");
+                fetchAllData();
+                loadMachineNames(); // Refresh suggestions
+            } catch (err) { addLog("Clear failed", "error"); }
+        }
+
+        // --- 4. Search & Troubleshoot ---
+        async function searchTroubleshoot() {
+            const mId = document.getElementById('model-input').value;
+            const issue = document.getElementById('issue-search-input').value;
+            const resultArea = document.getElementById('troubleshoot-result');
+            const cardContainer = document.getElementById('troubleshoot-cards');
+
+            addLog(`Searching: ${mId || 'All'} / ${issue || 'All'}`, "process");
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/search-troubleshoot?machine_id=${mId}&issue=${issue}`);
+                const data = await res.json();
+
+                cardContainer.innerHTML = '';
+                if (data.length === 0) {
+                    addLog("No results found", "error");
+                    resultArea.classList.add('hidden');
+                    return;
+                }
+
+                data.forEach(item => {
+                    cardContainer.innerHTML += `
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 border dark:border-slate-700 rounded-2xl flex gap-4 animate-in slide-in-from-top-2 duration-300">
+                            <img src="${item.url}" class="w-24 h-24 object-cover rounded-xl shadow-sm">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="text-sm font-bold text-emerald-600">${item.machine_id}</p>
+                                    <span class="text-[10px] text-slate-400">${item.created_at || ''}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase">Description / Issue:</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-200 mt-0.5">${item.description || 'ไม่มีรายละเอียด'}</p>
+                                </div>
+                                <button onclick="viewMachineDetails('${item.machine_id}')" class="mt-2 text-[10px] text-blue-500 font-bold hover:underline">ดูข้อมูลทางเทคนิคเพิ่มเติม →</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                resultArea.classList.remove('hidden');
+                addLog(`Found ${data.length} records.`, "success");
+            } catch (err) { addLog("Search service unavailable", "error"); }
+        }
+
+        async function uploadData() {
+            const file = document.getElementById('file-input').files[0];
+            const mId = document.getElementById('m-id-input').value;
+            const btn = document.getElementById('upload-btn');
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('btn-spinner');
+
+            if(!file || !mId) return addLog("Validation: ID and Photo required.", "error");
+
+            btn.disabled = true; btnText.innerText = "Uploading to Cloud..."; spinner.classList.remove('hidden');
+            addLog(`Pushing ${mId} to production...`, "process");
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('description', document.getElementById('desc-input').value);
+            formData.append('machine_id', mId);
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
+                const data = await res.json();
+                addLog(`Success: ${data.message}`, "success");
+                
+                // Reset UI
+                document.getElementById('m-id-input').value = ""; 
+                document.getElementById('desc-input').value = "";
+                document.getElementById('file-input').value = "";
+                document.getElementById('image-preview').src = "";
+                document.getElementById('image-preview').classList.add('hidden');
+                document.getElementById('upload-placeholder').classList.remove('hidden');
+                document.getElementById('file-path-display').innerText = "ยังไม่ได้เลือกไฟล์...";
+                
+                loadMachineNames(); // Update suggestions with new ID
+            } catch (err) { addLog("Upload failed", "error"); }
+            finally { btn.disabled = false; btnText.innerText = "Send Report to Database"; spinner.classList.add('hidden'); }
+        }
+
+        // --- 5. Navigation & UI Helpers ---
         function addLog(message, type = 'info') {
             const container = document.getElementById('log-container');
             const time = new Date().toLocaleTimeString('th-TH', { hour12: false });
@@ -269,104 +416,7 @@
         function showTab(id) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            addLog(`Navigation: ${id}`);
-        }
-
-        function searchTroubleshoot() {
-            const issue = document.getElementById('issue-search-input').value.trim();
-            const resultArea = document.getElementById('troubleshoot-result');
-            const causeOut = document.getElementById('cause-output');
-            const solOut = document.getElementById('solution-output-v2');
-
-            if (!issue) return addLog("Validation: Please specify the issue.", "error");
-
-            addLog(`Analyzing: ${issue}`, "process");
-            let cause = "ไม่พบข้อมูลที่ตรงกัน";
-            let solution = "โปรดติดต่อวิศวกรซ่อมบำรุง";
-
-            if (issue.includes("ร้อน") || issue.includes("heat")) {
-                cause = "ระบบระบายอากาศขัดข้อง หรือทำงานเกินกำลัง";
-                solution = "1. ตรวจพัดลม 2. เช็คน้ำมันหล่อลื่น 3. พักเครื่อง 15 นาที";
-            } else if (issue.includes("เสียง") || issue.includes("noise")) {
-                cause = "ลูกปืนเสื่อมสภาพ หรือน็อตหลวม";
-                solution = "1. เช็คตำแหน่งลูกปืน 2. ขันน็อตฐาน 3. อัดจาระบี";
-            }
-
-            causeOut.innerText = cause;
-            solOut.innerText = solution;
-            resultArea.classList.remove('hidden');
-            addLog("Analysis complete.", "success");
-        }
-
-        async function uploadData() {
-            const file = document.getElementById('file-input').files[0];
-            const mId = document.getElementById('m-id-input').value;
-            const btn = document.getElementById('upload-btn');
-            const btnText = document.getElementById('btn-text');
-
-            if(!file || !mId) return addLog("Validation Error: ID and Photo required.", "error");
-
-            btn.disabled = true; btnText.innerText = "Sending...";
-            addLog(`Uploading data for ${mId}...`, "process");
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('description', document.getElementById('desc-input').value);
-            formData.append('machine_id', mId);
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
-                const data = await res.json();
-                addLog(`Success: ${data.message}`, "success");
-                
-                // Reset Form and Preview
-                document.getElementById('m-id-input').value = ""; 
-                document.getElementById('desc-input').value = "";
-                document.getElementById('file-input').value = "";
-                document.getElementById('image-preview').src = "";
-                document.getElementById('image-preview').classList.add('hidden');
-                document.getElementById('upload-placeholder').classList.remove('hidden');
-                document.getElementById('file-path-display').innerText = "ยังไม่ได้เลือกไฟล์...";
-            } catch (err) {
-                addLog("Upload failed.", "error");
-            } finally {
-                btn.disabled = false; btnText.innerText = "Send Report to Database";
-            }
-        }
-
-        async function fetchAllData() {
-            const tbody = document.getElementById('database-body');
-            try {
-                const res = await fetch(`${BACKEND_URL}/get-all-machines`);
-                const machines = await res.json();
-                tbody.innerHTML = '';
-                if (machines.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400 italic">No records in database.</td></tr>';
-                    return;
-                }
-                machines.forEach(m => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                            <td class="p-4 font-bold text-indigo-500">${m.machine_id}</td>
-                            <td class="p-4 text-center">
-                                <img src="${m.url}" class="w-12 h-8 object-cover rounded shadow-sm mx-auto">
-                            </td>
-                            <td class="p-4 text-xs opacity-70">${m.description || '-'}</td>
-                            <td class="p-4 text-right">
-                                <button onclick="viewMachineDetails('${m.machine_id}')" class="text-[10px] bg-slate-200 dark:bg-slate-600 px-3 py-1 rounded-full hover:bg-indigo-500 hover:text-white transition">View</button>
-                            </td>
-                        </tr>`;
-                });
-            } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-400">Sync Error</td></tr>'; }
-        }
-
-        function filterDatabase() {
-            const val = document.getElementById("db-search-input").value.toUpperCase();
-            const rows = document.getElementById("machine-table").getElementsByTagName("tr");
-            for (let i = 1; i < rows.length; i++) {
-                const idCell = rows[i].getElementsByTagName("td")[0];
-                if (idCell) rows[i].style.display = idCell.innerText.toUpperCase().includes(val) ? "" : "none";
-            }
+            addLog(`Switching to: ${id}`);
         }
 
         async function searchMachine() {
@@ -378,15 +428,24 @@
                 if(data.detail === "Not Found") return addLog("Error: ID not found.", "error");
                 document.getElementById('result-area').classList.remove('hidden');
                 document.getElementById('res-img').src = data.url;
-                document.getElementById('res-desc').innerText = "Description: " + data.description;
-                addLog(`Found ${id}`, "success");
-            } catch (err) { addLog("Search error", "error"); }
+                document.getElementById('res-desc').innerText = "Detail: " + data.description;
+                addLog(`Sync successful for ${id}`, "success");
+            } catch (err) { addLog("Search service error", "error"); }
         }
 
         function viewMachineDetails(id) {
             showTab('view-tab');
             document.getElementById('search-id').value = id;
             searchMachine();
+        }
+
+        function filterDatabase() {
+            const val = document.getElementById("db-search-input").value.toUpperCase();
+            const rows = document.getElementById("machine-table").getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+                const idCell = rows[i].getElementsByTagName("td")[0];
+                if (idCell) rows[i].style.display = idCell.innerText.toUpperCase().includes(val) ? "" : "none";
+            }
         }
 
         function generateCalendar() {
@@ -402,7 +461,20 @@
                 container.innerHTML += `<div><span class="${todayClass}">${d}</span></div>`;
             }
         }
-        generateCalendar();
+
+        window.onload = () => {
+            loadMachineNames();
+            generateCalendar();
+            updateClock();
+            fetchAllData();
+        };
+
+        // Close suggestions on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative')) {
+                document.getElementById('suggestion-list').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
