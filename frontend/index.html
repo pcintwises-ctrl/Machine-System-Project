@@ -134,13 +134,13 @@
                 <div id="db-tab" class="tab-content">
                     <div class="max-w-5xl mx-auto space-y-4">
                         <div class="glass-panel p-4 rounded-2xl flex justify-between items-center shadow-sm">
-                            <input type="text" id="db-search" oninput="handleSuggest(this.value, 'db-search', 'db-suggestion')" placeholder="Search Master Data..." class="w-64 p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none">
+                            <input type="text" id="db-search" oninput="handleSuggest(this.value, 'db-search', 'db-suggestion')" placeholder="Quick search machine..." class="w-64 p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none">
                             <button onclick="clearDatabase()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-600 hover:text-white transition uppercase">Wipe database</button>
                         </div>
                         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                             <table class="w-full text-left text-[11px]">
                                 <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold uppercase tracking-wider border-b dark:border-slate-800">
-                                    <tr><th class="p-4">Machine ID</th><th class="p-4">Evidence</th><th class="p-4">Description</th><th class="p-4 text-right">Reported At</th></tr>
+                                    <tr><th class="p-4">Machine ID</th><th class="p-4">Visual</th><th class="p-4">Description</th><th class="p-4 text-right">Reported At</th></tr>
                                 </thead>
                                 <tbody id="db-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
                             </table>
@@ -176,7 +176,7 @@
                         </div>
 
                         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">กราฟสถิติความถี่การแจ้งปัญหาต่อวัน</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">กราฟสถิติความถี่การแจ้งปัญหาตามวันเวลา</p>
                             <div class="h-80 w-full"><canvas id="analyticsChart"></canvas></div>
                         </div>
                     </div>
@@ -269,6 +269,7 @@
                 const issueFreq = {};
                 const dateFreq = {};
                 filteredData.forEach(item => {
+                    // จัดกลุ่มตามวันเวลาที่ละเอียดขึ้น (ISO string)
                     const date = item.created_at.split('T')[0];
                     dateFreq[date] = (dateFreq[date] || 0) + 1;
                     const desc = item.description || "Unspecified Anomaly";
@@ -318,31 +319,58 @@
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
                 const tbody = document.getElementById('db-table-body');
-                tbody.innerHTML = data.map(item => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
-                        <td class="p-4"><img src="${item.url}" class="w-10 h-10 object-cover rounded border border-white dark:border-slate-800"></td>
-                        <td class="p-4 text-[10px] opacity-70">${item.description || '-'}</td>
-                        <td class="p-4 text-right font-mono opacity-50">${item.created_at ? item.created_at.split('T')[0] : 'N/A'}</td>
-                    </tr>`).join('');
+                tbody.innerHTML = data.map(item => {
+                    // จัดการแสดงผลวันที่ให้สวยงาม: วัน-เดือน-ปี ชม:นาที:วินาที
+                    const dateObj = new Date(item.created_at);
+                    const formattedDate = dateObj.toLocaleString('en-GB'); 
+                    
+                    return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
+                            <td class="p-4"><img src="${item.url}" class="w-10 h-10 object-cover rounded border border-white dark:border-slate-800"></td>
+                            <td class="p-4 text-[10px] opacity-70">${item.description || '-'}</td>
+                            <td class="p-4 text-right font-mono opacity-50">${formattedDate}</td>
+                        </tr>`;
+                }).join('');
                 addLog(`Database: Synchronized ${data.length} master entries.`);
             } catch (err) {}
         }
 
+        // แก้ไขฟังก์ชันอัปโหลดให้ไม่เด้ง Pop-up และไม่โหลดหน้าใหม่
         async function submitData() {
             const mId = document.getElementById('new-machine-id').value;
             const desc = document.getElementById('new-description').value;
-            const file = document.getElementById('new-file').files[0];
-            if (!mId || !file) return alert("System requires Asset Identity and Visual proof.");
+            const fileInput = document.getElementById('new-file');
+            const file = fileInput.files[0];
+            
+            if (!mId || !file) {
+                addLog("Validation Error: Machine ID and Image are required.", "error");
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', desc);
             formData.append('machine_id', mId);
+            
+            addLog(`Transmission: Uploading asset ${mId}...`);
             try {
-                await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
-                alert("Successful Data Ingestion!");
-                location.reload();
-            } catch (err) { addLog("Gateway Error", "error"); }
+                const response = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                // แจ้งเตือนผ่าน Log แทน alert
+                addLog(`Success: Data for asset ${mId} successfully integrated.`, "success");
+                
+                // ล้างฟอร์มหลังจากส่งสำเร็จ (โดยไม่รีโหลดหน้า)
+                document.getElementById('new-machine-id').value = '';
+                document.getElementById('new-description').value = '';
+                fileInput.value = '';
+                document.getElementById('register-preview').classList.add('hidden');
+                document.getElementById('preview-placeholder').classList.remove('hidden');
+                
+            } catch (err) { 
+                addLog("Gateway Error: Packet transmission failed.", "error"); 
+            }
         }
 
         async function executeSearch() {
@@ -366,7 +394,7 @@
         }
 
         async function clearDatabase() {
-            if(!confirm("Purge all data?")) return;
+            if(!confirm("DANGER: This will purge all production data. Proceed?")) return;
             await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
             location.reload();
         }

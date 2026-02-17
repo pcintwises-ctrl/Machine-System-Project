@@ -8,12 +8,12 @@ import cloudinary.uploader
 from typing import Optional
 from datetime import datetime
 
-# 1. โหลด Environment
+# 1. โหลดค่า Environment Variables
 load_dotenv()
 
 app = FastAPI()
 
-# 2. CORS เพื่อให้หน้าเว็บติดต่อได้
+# 2. ตั้งค่า CORS ให้ Frontend ติดต่อได้
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 3. ตั้งค่า Cloudinary
+# 3. กำหนดค่า Cloudinary
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
@@ -30,19 +30,22 @@ cloudinary.config(
     secure=True
 )
 
-# 4. เชื่อมต่อ MongoDB
+# 4. เชื่อมต่อ MongoDB Atlas
 MONGO_DETAILS = os.getenv("MONGO_DETAILS")
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client.factory_db
 machine_collection = database.get_collection("machine_data")
 
+# --- API Endpoints ---
+
 @app.get("/")
 async def root():
-    return {"message": "MachineSync Pro API Active"}
+    return {"status": "online", "message": "MachineSync Pro API v2.5 Active"}
 
 @app.get("/get-machine-names")
 async def get_machine_names():
     try:
+        # ดึงชื่อ Machine ID ทั้งหมดแบบไม่ซ้ำกันเพื่อทำ Auto-suggestion
         names = await machine_collection.distinct("machine_id")
         return names
     except Exception as e:
@@ -50,33 +53,14 @@ async def get_machine_names():
 
 @app.get("/get-all-machines")
 async def get_all_machines():
-    machines = []
-    # เรียงลำดับจากอดีตไปปัจจุบันเพื่อใช้ในกราฟ
-    cursor = machine_collection.find().sort("created_at", 1)
-    async for document in cursor:
-        document["_id"] = str(document["_id"])
-        machines.append(document)
-    return machines
-
-@app.post("/upload")
-async def upload_machine_data(
-    file: UploadFile = File(...),
-    description: str = Form(None),
-    machine_id: str = Form(...)
-):
     try:
-        upload_result = cloudinary.uploader.upload(file.file, folder="machine_system")
-        
-        new_record = {
-            "machine_id": machine_id,
-            "description": description,
-            "url": upload_result.get("secure_url"),
-            "public_id": upload_result.get("public_id"),
-            # บันทึกเวลาแบบ ISO เพื่อให้ JS หน้าบ้านดึงไปทำแกน X ได้
-            "created_at": datetime.utcnow().isoformat() 
-        }
-        await machine_collection.insert_one(new_record)
-        return {"status": "Success", "message": f"Asset {machine_id} logged."}
+        machines = []
+        # เรียงลำดับตามวันที่จากใหม่ไปเก่า
+        cursor = machine_collection.find().sort("created_at", -1)
+        async for document in cursor:
+            document["_id"] = str(document["_id"])
+            machines.append(document)
+        return machines
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -98,15 +82,43 @@ async def search_troubleshoot(machine_id: Optional[str] = None, issue: Optional[
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/upload")
+async def upload_machine_data(
+    file: UploadFile = File(...),
+    description: str = Form(None),
+    machine_id: str = Form(...)
+):
+    try:
+        # อัปโหลดรูปภาพไปยัง Cloudinary
+        upload_result = cloudinary.uploader.upload(file.file, folder="machine_system")
+        image_url = upload_result.get("secure_url")
+
+        # สร้างชุดข้อมูลใหม่พร้อม Timestamp แบบละเอียด
+        new_record = {
+            "machine_id": machine_id,
+            "description": description,
+            "url": image_url,
+            "public_id": upload_result.get("public_id"),
+            # บันทึกวันเดือนปีและเวลาปัจจุบัน (ISO 8601)
+            "created_at": datetime.now().isoformat() 
+        }
+        
+        # บันทึกลง MongoDB
+        await machine_collection.insert_one(new_record)
+        return {"status": "Success", "message": f"Asset {machine_id} registered at {new_record['created_at']}"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.delete("/clear-database")
 async def clear_database():
     try:
         result = await machine_collection.delete_many({})
-        return {"status": "Success", "count": result.deleted_count}
+        return {"status": "Success", "deleted_count": result.deleted_count}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # รันเซิร์ฟเวอร์ที่พอร์ต 8000
+    uvicorn.run(app, host="0.0.0.0", port=8000)
