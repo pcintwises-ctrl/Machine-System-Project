@@ -3,29 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MachineSync Pro | Advanced Maintenance Intelligence</title>
+    <title>MachineSync Pro | Advanced Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .sidebar-btn { width: 100%; text-align: left; padding: 10px 16px; border-radius: 12px; transition: all 0.3s; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 12px; }
-        .sidebar-btn:hover { background: rgba(37, 99, 235, 0.1); color: #2563eb; transform: translateX(4px); }
         .sidebar-btn.active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
-        .today { background: #2563eb; color: white; border-radius: 6px; width: 20px; height: 20px; }
-        #tab1-dropdown { transition: all 0.4s ease; overflow: hidden; max-height: 0; opacity: 0; }
-        #tab1-dropdown.open { max-height: 250px; opacity: 1; margin-top: 8px; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
         .dark .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
-        #log-container::-webkit-scrollbar { width: 4px; }
-        #log-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .active-filter { background: #2563eb !important; color: white !important; }
-        .suggestion-item:hover { background-color: #f1f5f9; cursor: pointer; }
+        #tab1-dropdown { transition: all 0.4s ease; overflow: hidden; max-height: 0; opacity: 0; }
+        #tab1-dropdown.open { max-height: 250px; opacity: 1; margin-top: 8px; }
     </style>
 </head>
 <body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200">
@@ -33,257 +25,157 @@
     <header class="h-14 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 shrink-0 z-50">
         <div class="flex items-center gap-2">
             <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">M</div>
-            <h1 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">MachineSync <span class="text-blue-600">Pro</span></h1>
+            <h1 class="text-base font-bold text-slate-900 dark:text-white">MachineSync Pro</h1>
         </div>
-        <div class="flex items-center gap-8">
-            <div class="text-right">
-                <p id="nav-clock" class="text-sm font-semibold font-mono text-blue-600 leading-none">00:00:00</p>
-                <p id="nav-date" class="text-[9px] text-slate-400 font-bold uppercase">Loading Date...</p>
-            </div>
-            <button onclick="toggleTheme()" class="w-8 h-8 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-100 dark:hover:bg-slate-800">🌙</button>
+        <div class="text-right">
+            <p id="nav-clock" class="text-sm font-semibold font-mono text-blue-600 leading-none">00:00:00</p>
+            <p id="nav-date" class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Loading...</p>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
+        <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-5 shrink-0 flex flex-col">
             <nav class="flex-1 space-y-1">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
-                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 Home Overview</button>
+                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 Overview</button>
                 <div class="relative">
-                    <button id="btn-tab1" onclick="toggleTab1()" class="sidebar-btn justify-between">
-                        <span class="flex items-center gap-3">🛠️ Intelligence Search</span>
-                        <span id="arrow" class="text-[10px] transition-transform">▼</span>
+                    <button onclick="toggleTab1()" class="sidebar-btn justify-between">
+                        <span>🛠️ Search Intel</span>
+                        <span id="arrow">▼</span>
                     </button>
                     <div id="tab1-dropdown" class="pl-9 space-y-1">
-                        <button onclick="activateMode('machine')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-mediumTransition-all">• By Machine ID</button>
-                        <button onclick="activateMode('model')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• By Symptom/Model</button>
+                        <button onclick="activateMode('machine')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 transition-all">• By Machine ID</button>
+                        <button onclick="activateMode('model')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 transition-all">• By Symptoms</button>
                     </div>
                 </div>
-                <button id="btn-tab2" onclick="showTab('add-tab')" class="sidebar-btn">📝 Register Incident</button>
-                <button id="btn-db" onclick="showTab('db-tab'); fetchAllRecords();" class="sidebar-btn">🗄️ Database Center</button>
-                <button id="btn-tab3" onclick="showTab('summary-tab'); updateAnalytics('week');" class="sidebar-btn">📊 Operational Intel</button>
+                <button onclick="showTab('add-tab')" id="btn-add" class="sidebar-btn">📝 Register Issue</button>
+                <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ Database</button>
+                <button onclick="showTab('summary-tab'); updateAnalytics();" id="btn-summary" class="sidebar-btn">📊 Operational Analytics</button>
             </nav>
+            <div class="mt-auto border-t pt-4">
+                <div id="calendar-days" class="grid grid-cols-7 text-[8px] text-center gap-1 opacity-50 font-bold"></div>
+            </div>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden relative">
-            <section class="flex-1 p-8 overflow-y-auto">
-                
-                <div id="home-state" class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
-                    <div class="relative w-full bg-white dark:bg-slate-900 p-3 rounded-[2rem] shadow-2xl border dark:border-slate-800">
-                        <img src="sony_logo.jpg" class="w-full h-64 object-cover rounded-[1.5rem]" alt="Sony Home">
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div id="home-state" class="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-700">
+                <div class="glass-panel p-4 rounded-3xl shadow-xl border dark:border-slate-800 overflow-hidden">
+                    <img src="sony_logo.jpg" class="w-full h-64 object-cover rounded-2xl" alt="Corporate Banner">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl border dark:border-slate-800">
+                        <h3 class="text-blue-600 font-bold mb-2 text-xs uppercase">Description</h3>
+                        <p class="text-sm opacity-80 leading-relaxed">Centralized maintenance intelligence hub for tracking, diagnosing, and reporting industrial machine anomalies at production lines.</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="glass-panel p-6 rounded-3xl border dark:border-slate-800 shadow-sm">
-                            <h3 class="text-blue-600 font-bold mb-2 uppercase text-xs">Mission Control</h3>
-                            <p class="text-sm text-slate-500 leading-relaxed">MachineSync Pro is a centralized intelligence hub designed for tracking and diagnosing factory production anomalies. It minimizes downtime through predictive data insights.</p>
-                        </div>
-                        <div class="glass-panel p-6 rounded-3xl border dark:border-slate-800 shadow-sm">
-                            <h3 class="text-emerald-600 font-bold mb-2 uppercase text-xs">Capabilities</h3>
-                            <ul class="text-sm text-slate-500 space-y-2">
-                                <li>• <b>Deep Search:</b> Query machine failure history.</li>
-                                <li>• <b>Asset Logging:</b> Multi-media incident registration.</li>
-                                <li>• <b>Time-Series Intel:</b> Visualizing daily incident frequency.</li>
-                            </ul>
-                        </div>
+                    <div class="glass-panel p-6 rounded-2xl border dark:border-slate-800">
+                        <h3 class="text-emerald-600 font-bold mb-2 text-xs uppercase">Key Features</h3>
+                        <p class="text-sm opacity-80 leading-relaxed">Cloud-based storage for visual evidence, automated daily incident timeline analytics, and deep historical troubleshoot searching.</p>
                     </div>
                 </div>
+            </div>
 
-                <div id="manage-tab" class="tab-content">
-                    <div class="max-w-4xl mx-auto space-y-6">
-                        <div class="glass-panel rounded-3xl p-8 shadow-xl">
-                            <h2 id="search-title" class="text-xl font-bold text-blue-600 uppercase mb-6">Database Intelligence</h2>
-                            <div class="flex gap-3 relative">
-                                <div class="relative flex-1">
-                                    <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'suggestion-list')" placeholder="Search parameters..." class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all">
-                                    <ul id="suggestion-list" class="absolute z-50 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mt-1 rounded-xl shadow-xl hidden overflow-hidden"></ul>
-                                </div>
-                                <button onclick="executeSearch()" class="px-10 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition active:scale-95">Analyze</button>
-                            </div>
-                        </div>
-                        <div id="search-results" class="hidden"><div id="results-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div>
+            <div id="manage-tab" class="tab-content">
+                <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl shadow-xl">
+                    <h2 id="search-title" class="text-xl font-bold text-blue-600 uppercase mb-6">Asset Intelligence Search</h2>
+                    <div class="flex gap-2"><input type="text" id="search-input" placeholder="Query parameters..." class="flex-1 p-3 border rounded-xl dark:bg-slate-950"><button onclick="executeSearch()" class="px-6 bg-blue-600 text-white rounded-xl font-bold">ANALYZE</button></div>
+                    <div id="search-results" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+
+            <div id="add-tab" class="tab-content">
+                <div class="max-w-xl mx-auto glass-panel p-8 rounded-3xl shadow-xl space-y-5">
+                    <h2 class="text-xl font-bold">New Incident Registration</h2>
+                    <input type="text" id="new-machine-id" placeholder="Machine ID" class="w-full p-3 rounded-xl border dark:bg-slate-950">
+                    <textarea id="new-description" placeholder="Technical Symptoms..." class="w-full p-3 rounded-xl border h-28 dark:bg-slate-950"></textarea>
+                    <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer hover:bg-slate-50 transition">
+                        <span id="upload-text">📁 Click to Attach Image</span>
+                        <img id="register-preview" class="hidden max-h-32 mt-2 rounded shadow-md border-2 border-white">
+                        <input type="file" id="new-file" onchange="handleRegisterPreview(this)" class="hidden">
+                    </label>
+                    <button onclick="submitData()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase hover:bg-blue-700 transition">COMMIT TO BASE</button>
+                </div>
+            </div>
+
+            <div id="db-tab" class="tab-content">
+                <div class="max-w-5xl mx-auto space-y-4">
+                    <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm">
+                        <h3 class="font-bold text-slate-400 text-xs uppercase tracking-widest">Master Production Records</h3>
+                        <button onclick="clearDatabase()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition">WIPE DATABASE</button>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl border overflow-hidden">
+                        <table class="w-full text-left text-[11px]"><thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold uppercase tracking-wider"><tr><th class="p-4">Asset ID</th><th class="p-4">Visual</th><th class="p-4">Diagnosis</th><th class="p-4 text-right">Reported At</th></tr></thead><tbody id="db-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody></table>
                     </div>
                 </div>
+            </div>
 
-                <div id="add-tab" class="tab-content">
-                    <div class="max-w-xl mx-auto glass-panel rounded-3xl p-8 shadow-xl space-y-5">
-                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">New Incident Registration</h2>
-                        <input type="text" id="new-machine-id" placeholder="Machine ID / Model" class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all">
-                        <textarea id="new-description" placeholder="Diagnostic Description" class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl h-28 outline-none focus:ring-2 ring-blue-500/50 transition-all"></textarea>
-                        
-                        <div class="relative">
-                            <label class="flex items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950/50 p-6 rounded-xl border border-dashed border-slate-300 cursor-pointer hover:bg-slate-100 transition-all">
-                                <div id="preview-placeholder" class="text-center">
-                                    <p class="text-xs font-bold text-slate-400">📂 ATTACH EVIDENCE IMAGE</p>
-                                </div>
-                                <img id="register-preview" class="hidden max-h-32 rounded-lg shadow-md border-2 border-white">
-                                <input type="file" id="new-file" onchange="handleRegisterPreview(this)" class="hidden">
-                            </label>
-                        </div>
-                        
-                        <button onclick="submitData()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-700 transition active:scale-95">Commit to Base</button>
+            <div id="summary-tab" class="tab-content">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="glass-panel rounded-3xl p-6 flex justify-between items-center">
+                        <div><h2 class="text-xl font-bold uppercase">Operational Intelligence</h2><p class="text-[10px] text-slate-400 font-bold">Chronological Incident Performance</p></div>
+                        <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase">Total Incidents</p><p id="total-count" class="text-3xl font-black text-blue-600">0</p></div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">Frequency vs Reporting Date</p>
+                        <div class="h-80"><canvas id="analyticsChart"></canvas></div>
                     </div>
                 </div>
-
-                <div id="db-tab" class="tab-content">
-                    <div class="max-w-5xl mx-auto space-y-6">
-                        <div class="glass-panel rounded-3xl p-6 shadow-sm flex justify-between items-center">
-                            <div class="relative flex-1 max-w-sm">
-                                <input type="text" id="db-search" oninput="handleSuggest(this.value, 'db-search', 'db-suggestion')" placeholder="Quick search machine..." class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl outline-none focus:ring-2 ring-blue-500/50 text-sm">
-                                <ul id="db-suggestion" class="absolute z-50 w-full bg-white dark:bg-slate-900 border mt-1 rounded-xl shadow-xl hidden"></ul>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="fetchAllRecords()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold transition-all hover:bg-slate-200">REFRESH</button>
-                                <button onclick="clearDatabase()" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold transition-all hover:bg-red-600 hover:text-white uppercase">Clear Base</button>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                            <table class="w-full text-left text-xs">
-                                <thead>
-                                    <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold uppercase tracking-widest border-b">
-                                        <th class="p-4">Machine ID</th>
-                                        <th class="p-4">Image</th>
-                                        <th class="p-4">Description</th>
-                                        <th class="p-4 text-right">Timestamp</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="db-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-                                    <tr><td colspan="4" class="p-10 text-center italic text-slate-400">Loading master records...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="summary-tab" class="tab-content">
-                    <div class="max-w-5xl mx-auto space-y-6">
-                        <div class="glass-panel rounded-3xl p-6 shadow-sm flex justify-between items-center">
-                            <div>
-                                <h2 class="text-xl font-bold uppercase tracking-tight">Operational Intelligence</h2>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase">Chronological Performance Metrics</p>
-                            </div>
-                            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                                <button onclick="updateAnalytics('day')" class="filter-btn px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all active-filter">TIMELINE VIEW</button>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                            <div class="lg:col-span-1 space-y-4">
-                                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Logged</p>
-                                    <p id="total-count" class="text-4xl font-black text-blue-600">0</p>
-                                </div>
-                            </div>
-                            <div class="lg:col-span-3 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">Frequency vs Reporting Date</p>
-                                <div class="h-80"><canvas id="analyticsChart"></canvas></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="h-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
-                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Diagnostic Stream</h3>
-                <div id="log-container" class="flex-1 overflow-y-auto font-mono text-[10px] space-y-1 text-emerald-500 leading-relaxed scroll-smooth h-full">
-                    <p>>> Initializing MachineSync Pro v2.5... OK</p>
-                </div>
-            </footer>
+            </div>
         </main>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com'; // หรือ URL ที่รันบน Render
-        let machineNames = [];
-        let currentSearchMode = 'machine';
+        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         let myChart = null;
+        let currentSearchMode = 'machine';
 
-        // --- Core UI Logic ---
-        function toggleTab1() {
-            const dropdown = document.getElementById('tab1-dropdown');
-            dropdown.classList.toggle('open');
-            document.getElementById('arrow').style.transform = dropdown.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-        }
-
-        function activateMode(mode) {
-            currentSearchMode = mode;
-            showTab('manage-tab');
-            document.getElementById('search-title').innerText = mode === 'machine' ? 'Machine Intelligence' : 'Technical Symptom Search';
-            addLog(`Switching Intelligence Mode: ${mode.toUpperCase()}`);
-        }
-
+        function toggleTab1() { document.getElementById('tab1-dropdown').classList.toggle('open'); }
+        function activateMode(m) { currentSearchMode = m; showTab('manage-tab'); document.getElementById('search-title').innerText = m === 'machine' ? 'Hardware Intel Search' : 'Symptom Intel Search'; }
         function showTab(id) {
             document.getElementById('home-state').style.display = id === 'home' ? 'block' : 'none';
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
             if(id !== 'home') document.getElementById(id).classList.add('active');
-            addLog(`Navigation: Accessing ${id.toUpperCase()}`);
+            const btnId = id === 'manage-tab' ? 'btn-tab1' : (id === 'add-tab' ? 'btn-add' : (id === 'summary-tab' ? 'btn-summary' : (id === 'db-tab' ? 'btn-db' : 'btn-home')));
+            if(document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
         }
+        function showHome() { showTab('home'); }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
 
-        function showHome() { showTab('home'); document.getElementById('btn-home').classList.add('active'); }
-
-        // --- Register Preview Logic ---
         function handleRegisterPreview(input) {
             const preview = document.getElementById('register-preview');
-            const placeholder = document.getElementById('preview-placeholder');
+            const text = document.getElementById('upload-text');
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.src = e.target.result;
-                    preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                }
+                reader.onload = (e) => { preview.src = e.target.result; preview.classList.remove('hidden'); text.innerText = `File: ${input.files[0].name}`; }
                 reader.readAsDataURL(input.files[0]);
-                addLog(`Evidence photo attached: ${input.files[0].name}`);
             }
         }
 
-        // --- Database Logic ---
         async function fetchAllRecords() {
-            addLog("Database: Syncing master records...");
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
                 const tbody = document.getElementById('db-table-body');
-                tbody.innerHTML = '';
-                data.forEach(item => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                            <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
-                            <td class="p-4"><img src="${item.url}" class="w-12 h-12 object-cover rounded shadow-sm border border-white"></td>
-                            <td class="p-4 text-xs text-slate-500">${item.description || '-'}</td>
-                            <td class="p-4 text-right font-mono text-[10px] opacity-50">${item.created_at.split('T')[0]}</td>
-                        </tr>`;
-                });
-                addLog(`Database: ${data.length} records retrieved.`, "success");
-            } catch (err) { addLog("Database Error: Sync failed.", "error"); }
+                tbody.innerHTML = data.map(item => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
+                        <td class="p-4"><img src="${item.url}" class="w-10 h-10 object-cover rounded border"></td>
+                        <td class="p-4 text-[10px] opacity-70">${item.description || '-'}</td>
+                        <td class="p-4 text-right font-mono opacity-50">${item.created_at ? item.created_at.split('T')[0] : 'N/A'}</td>
+                    </tr>`).join('');
+            } catch (err) {}
         }
 
-        async function clearDatabase() {
-            if(!confirm("ARE YOU SURE? This will wipe all production intelligence data.")) return;
-            try {
-                const res = await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
-                addLog("Database: Intelligence wiped successfully.", "error");
-                fetchAllRecords();
-                loadNames();
-            } catch (err) { addLog("Wipe Error.", "error"); }
-        }
-
-        // --- Analytics Chart System ---
         async function updateAnalytics() {
-            addLog(`Analytics: Calculating incident timeline...`);
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
-                if (data.length === 0) return;
-
                 const dateFreq = {};
                 data.forEach(item => {
                     const date = item.created_at ? item.created_at.split('T')[0] : 'Unknown';
                     dateFreq[date] = (dateFreq[date] || 0) + 1;
                 });
-
-                const sortedDates = Object.keys(dateFreq).sort();
-                const counts = sortedDates.map(d => dateFreq[d]);
-
+                const labels = Object.keys(dateFreq).sort();
+                const counts = labels.map(l => dateFreq[l]);
                 document.getElementById('total-count').innerText = data.length;
 
                 const ctx = document.getElementById('analyticsChart').getContext('2d');
@@ -291,32 +183,38 @@
                 myChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: sortedDates,
-                        datasets: [{
-                            label: 'Incidents Reported',
-                            data: counts,
-                            backgroundColor: '#2563eb',
-                            borderRadius: 6,
-                            barThickness: sortedDates.length > 10 ? 'flex' : 35,
-                            maxBarThickness: 50
-                        }]
+                        labels: labels,
+                        datasets: [{ label: 'Frequency', data: counts, backgroundColor: '#2563eb', borderRadius: 6, barThickness: 30 }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'FREQUENCY (COUNT)', font: { weight: 'bold' } } },
-                            x: { title: { display: true, text: 'REPORTED DATE (YYYY-MM-DD)', font: { weight: 'bold' } } }
-                        }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'COUNT' } }, x: { title: { display: true, text: 'REPORTED DATE' } } } }
                 });
-            } catch (err) { addLog("Analytics Sync Error", "error"); }
+            } catch (err) {}
         }
 
-        // --- Search Logic ---
+        async function submitData() {
+            const mId = document.getElementById('new-machine-id').value;
+            const desc = document.getElementById('new-description').value;
+            const file = document.getElementById('new-file').files[0];
+            if (!mId || !file) return alert("Missing ID or Photo!");
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('description', desc);
+            formData.append('machine_id', mId);
+            try {
+                const res = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
+                alert("Incident Registered Successfully!");
+                location.reload(); 
+            } catch (err) { alert("Upload gateway error."); }
+        }
+
+        async function clearDatabase() {
+            if(!confirm("Wipe all intelligence data?")) return;
+            await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
+            location.reload();
+        }
+
         async function executeSearch() {
             const input = document.getElementById('search-input').value;
-            addLog(`Gateway: Querying intelligence base for "${input || 'WILDCARD'}"`);
             let url = `${BACKEND_URL}/search-troubleshoot?`;
             url += (currentSearchMode === 'machine') ? `machine_id=${input}` : `issue=${input}`;
             try {
@@ -328,79 +226,17 @@
                     container.innerHTML += `
                         <div class="glass-panel rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border dark:border-slate-800">
                             <img src="${item.url}" class="w-full h-40 object-cover">
-                            <div class="p-5">
-                                <span class="text-[8px] font-black px-2 py-1 bg-blue-600 text-white rounded-md uppercase">${item.machine_id}</span>
-                                <p class="mt-2 font-bold text-xs">${item.description || '-'}</p>
-                            </div>
+                            <div class="p-5"><span class="text-[8px] font-black px-2 py-1 bg-blue-600 text-white rounded-md uppercase">${item.machine_id}</span><p class="mt-2 font-bold text-xs">${item.description || '-'}</p></div>
                         </div>`;
                 });
                 document.getElementById('search-results').classList.remove('hidden');
-            } catch (err) { addLog("Search Error.", "error"); }
-        }
-
-        async function submitData() {
-            const mId = document.getElementById('new-machine-id').value;
-            const desc = document.getElementById('new-description').value;
-            const file = document.getElementById('new-file').files[0];
-            if (!mId || !file) return alert("System Integrity Error: Identity and Evidence required.");
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('description', desc);
-            formData.append('machine_id', mId);
-            try {
-                addLog(`Transmission initiated for asset ${mId}...`);
-                await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
-                addLog(`Success: Incident for ${mId} integrated.`, "success");
-                alert("Incident Registered!");
-                location.reload(); 
-            } catch (err) { addLog("Gateway connection failed.", "error"); }
-        }
-
-        // --- Suggestion System ---
-        async function loadNames() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/get-machine-names`);
-                machineNames = await res.json();
             } catch (err) {}
         }
 
-        function handleSuggest(val, inputId, listId) {
-            const list = document.getElementById(listId);
-            list.innerHTML = '';
-            if (!val) { list.classList.add('hidden'); return; }
-            const filtered = machineNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
-            if (filtered.length > 0) {
-                filtered.forEach(name => {
-                    const li = document.createElement('li');
-                    li.className = 'p-3 border-b dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer text-[11px] font-bold transition suggestion-item';
-                    li.textContent = name;
-                    li.onclick = () => { 
-                        document.getElementById(inputId).value = name; 
-                        list.classList.add('hidden'); 
-                    };
-                    list.appendChild(li);
-                });
-                list.classList.remove('hidden');
-            } else { list.classList.add('hidden'); }
-        }
-
-        // --- Helpers ---
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('nav-clock').innerText = now.toLocaleTimeString();
-            document.getElementById('nav-date').innerText = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', weekday: 'short' }).toUpperCase();
-        }
-        setInterval(updateClock, 1000);
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
-        function addLog(msg, type = 'info') {
-            const container = document.getElementById('log-container');
-            const p = document.createElement('p');
-            p.className = type === 'error' ? 'text-red-500' : (type === 'success' ? 'text-blue-400' : 'text-emerald-500');
-            p.innerHTML = `>> [${new Date().toLocaleTimeString()}] ${msg}`;
-            container.prepend(p);
-        }
-
-        window.onload = () => { updateClock(); loadNames(); };
+        setInterval(() => { document.getElementById('nav-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        window.onload = () => { 
+            document.getElementById('nav-date').innerText = new Date().toLocaleDateString('en-US', {day:'numeric', month:'short', year:'numeric'}).toUpperCase(); 
+        };
     </script>
 </body>
 </html>
