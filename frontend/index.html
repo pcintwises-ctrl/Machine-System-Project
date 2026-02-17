@@ -54,7 +54,7 @@
         <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
             <nav class="flex-1 space-y-1">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
-                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 Home Overview</button>
+                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 หน้าแรก (Overview)</button>
                 <div class="relative">
                     <button onclick="toggleTab1()" id="btn-tab1-head" class="sidebar-btn justify-between">
                         <span class="flex items-center gap-3">🛠️ Intelligence Search</span>
@@ -123,7 +123,7 @@
                                 <span class="text-2xl">📸</span>
                                 <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase">Attach Evidence Image</p>
                             </div>
-                            <img id="register-preview" class="hidden max-h-32 mt-2 rounded shadow-md border-2 border-white">
+                            <img id="register-preview" class="hidden max-h-40 rounded-lg shadow-md border-2 border-white">
                             <input type="file" id="new-file" onchange="handleRegisterPreview(this)" class="hidden">
                         </label>
                         
@@ -269,7 +269,6 @@
                 const issueFreq = {};
                 const dateFreq = {};
                 filteredData.forEach(item => {
-                    // จัดกลุ่มตามวันเวลาที่ละเอียดขึ้น (ISO string)
                     const date = item.created_at.split('T')[0];
                     dateFreq[date] = (dateFreq[date] || 0) + 1;
                     const desc = item.description || "Unspecified Anomaly";
@@ -320,7 +319,6 @@
                 const data = await res.json();
                 const tbody = document.getElementById('db-table-body');
                 tbody.innerHTML = data.map(item => {
-                    // จัดการแสดงผลวันที่ให้สวยงาม: วัน-เดือน-ปี ชม:นาที:วินาที
                     const dateObj = new Date(item.created_at);
                     const formattedDate = dateObj.toLocaleString('en-GB'); 
                     
@@ -336,7 +334,7 @@
             } catch (err) {}
         }
 
-        // แก้ไขฟังก์ชันอัปโหลดให้ไม่เด้ง Pop-up และไม่โหลดหน้าใหม่
+        // --- แก้ไขจุดนี้: ลบ alert และ location.reload() ออก ---
         async function submitData() {
             const mId = document.getElementById('new-machine-id').value;
             const desc = document.getElementById('new-description').value;
@@ -356,17 +354,19 @@
             addLog(`Transmission: Uploading asset ${mId}...`);
             try {
                 const response = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
-                const result = await response.json();
                 
-                // แจ้งเตือนผ่าน Log แทน alert
-                addLog(`Success: Data for asset ${mId} successfully integrated.`, "success");
+                // แจ้งเตือนผ่าน Log แทนการใช้ alert
+                addLog(`Success: Incident for ${mId} successfully recorded.`, "success");
                 
-                // ล้างฟอร์มหลังจากส่งสำเร็จ (โดยไม่รีโหลดหน้า)
+                // ล้างค่าในฟอร์มเพื่อให้พร้อมกรอกข้อมูลใหม่
                 document.getElementById('new-machine-id').value = '';
                 document.getElementById('new-description').value = '';
                 fileInput.value = '';
                 document.getElementById('register-preview').classList.add('hidden');
                 document.getElementById('preview-placeholder').classList.remove('hidden');
+                
+                // (Optional) โหลดชื่อเครื่องใหม่เพื่อ update suggestion
+                loadNames();
                 
             } catch (err) { 
                 addLog("Gateway Error: Packet transmission failed.", "error"); 
@@ -393,10 +393,22 @@
             } catch (err) {}
         }
 
+        // --- แก้ไขจุดนี้: ลบ alert และ location.reload() ออก ---
         async function clearDatabase() {
             if(!confirm("DANGER: This will purge all production data. Proceed?")) return;
-            await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
-            location.reload();
+            
+            addLog("Database: Purge initiated...");
+            try {
+                await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
+                addLog("Database: All records have been cleared.", "error");
+                
+                // เคลียร์ตารางแสดงผลในหน้าเดิมทันทีโดยไม่ต้องรีโหลด
+                const tbody = document.getElementById('db-table-body');
+                if(tbody) tbody.innerHTML = '';
+                
+            } catch (err) {
+                addLog("Error: Could not clear database.", "error");
+            }
         }
 
         async function loadNames() {
@@ -452,7 +464,8 @@
         }
 
         window.onload = () => {
-            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') document.documentElement.classList.add('dark');
             setInterval(updateClock, 1000);
             updateClock();
             generateCalendar();
