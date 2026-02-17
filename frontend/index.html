@@ -54,20 +54,20 @@
         <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
             <nav class="flex-1 space-y-1">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
-                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 หน้าแรก (Overview)</button>
+                <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 Home Overview</button>
                 <div class="relative">
                     <button onclick="toggleTab1()" id="btn-tab1-head" class="sidebar-btn justify-between">
-                        <span class="flex items-center gap-3">🛠️ สืบค้นข้อมูลอัจฉริยะ</span>
+                        <span class="flex items-center gap-3">🛠️ Intelligence Search</span>
                         <span id="arrow" class="text-[10px] opacity-50 transition-transform">▼</span>
                     </button>
                     <div id="tab1-dropdown" class="pl-9 space-y-1">
-                        <button onclick="activateMode('machine')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• ตามรหัสเครื่องจักร</button>
-                        <button onclick="activateMode('model')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• ตามรุ่น / อาการเสีย</button>
+                        <button onclick="activateMode('machine')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• By Machine ID</button>
+                        <button onclick="activateMode('model')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• By Symptom/Model</button>
                     </div>
                 </div>
-                <button onclick="showTab('add-tab')" id="btn-add" class="sidebar-btn">📝 ลงทะเบียนแจ้งปัญหา</button>
-                <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ ฐานข้อมูล Master</button>
-                <button onclick="showTab('summary-tab'); updateAnalytics('week');" id="btn-summary" class="sidebar-btn">📊 ข้อมูลวิเคราะห์ระบบ</button>
+                <button onclick="showTab('add-tab')" id="btn-add" class="sidebar-btn">📝 Register Incident</button>
+                <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ Database Center</button>
+                <button onclick="showTab('summary-tab'); updateAnalytics('week');" id="btn-summary" class="sidebar-btn">📊 Operational Intel</button>
             </nav>
             <div class="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
                 <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-inner text-center">
@@ -103,7 +103,7 @@
                         <h2 id="search-title" class="text-xl font-bold text-blue-600 uppercase tracking-tight">Intelligence Base Search</h2>
                         <div class="flex gap-2 relative">
                             <div class="relative flex-1">
-                                <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'suggestion-list')" placeholder="ป้อนพารามิเตอร์เพื่อสืบค้น..." class="w-full bg-white dark:bg-slate-950 border rounded-xl p-3.5 outline-none focus:ring-2 ring-blue-500/50 transition-all">
+                                <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'suggestion-list')" placeholder="Enter parameters..." class="w-full bg-white dark:bg-slate-950 border rounded-xl p-3.5 outline-none focus:ring-2 ring-blue-500/50 transition-all">
                                 <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-xl shadow-2xl hidden z-50 overflow-hidden"></ul>
                             </div>
                             <button onclick="executeSearch()" class="px-8 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">ANALYZE</button>
@@ -114,16 +114,16 @@
 
                 <div id="add-tab" class="tab-content">
                     <div class="max-w-xl mx-auto glass-panel p-8 rounded-3xl shadow-xl space-y-5">
-                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">New Incident Registration</h2>
-                        <input type="text" id="new-machine-id" placeholder="รหัสเครื่องจักร / รุ่น" class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all">
-                        <textarea id="new-description" placeholder="รายละเอียดอาการเสียที่พบ..." class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl h-28 outline-none focus:ring-2 ring-blue-500/50 transition-all"></textarea>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Incident Registration</h2>
+                        <input type="text" id="new-machine-id" placeholder="Machine ID / Model" class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all">
+                        <textarea id="new-description" placeholder="Technical Symptoms..." class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl h-28 outline-none focus:ring-2 ring-blue-500/50 transition-all"></textarea>
                         
                         <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
                             <div id="preview-placeholder" class="text-center">
                                 <span class="text-2xl">📸</span>
                                 <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase">Attach Evidence Image</p>
                             </div>
-                            <img id="register-preview" class="hidden max-h-40 rounded-lg shadow-md border-2 border-white">
+                            <img id="register-preview" class="hidden max-h-32 mt-2 rounded shadow-md border-2 border-white">
                             <input type="file" id="new-file" onchange="handleRegisterPreview(this)" class="hidden">
                         </label>
                         
@@ -134,13 +134,13 @@
                 <div id="db-tab" class="tab-content">
                     <div class="max-w-5xl mx-auto space-y-4">
                         <div class="glass-panel p-4 rounded-2xl flex justify-between items-center shadow-sm">
-                            <input type="text" id="db-search" oninput="handleSuggest(this.value, 'db-search', 'db-suggestion')" placeholder="ค้นหาข้อมูล Master..." class="w-64 p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none">
-                            <button onclick="clearDatabase()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-600 hover:text-white transition uppercase">WIPE DATABASE</button>
+                            <input type="text" id="db-search" oninput="handleSuggest(this.value, 'db-search', 'db-suggestion')" placeholder="Search Master Data..." class="w-64 p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none">
+                            <button onclick="clearDatabase()" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold hover:bg-red-600 hover:text-white transition uppercase">Wipe database</button>
                         </div>
                         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                             <table class="w-full text-left text-[11px]">
                                 <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 font-bold uppercase tracking-wider border-b dark:border-slate-800">
-                                    <tr><th class="p-4">รหัสเครื่อง</th><th class="p-4">หลักฐาน</th><th class="p-4">รายละเอียด</th><th class="p-4 text-right">วันที่แจ้ง</th></tr>
+                                    <tr><th class="p-4">Machine ID</th><th class="p-4">Evidence</th><th class="p-4">Description</th><th class="p-4 text-right">Reported At</th></tr>
                                 </thead>
                                 <tbody id="db-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
                             </table>
@@ -156,10 +156,10 @@
                                 <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">บทสรุปข้อมูลปัญหาเครื่องจักรตามลำดับเวลา</p>
                             </div>
                             <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border dark:border-slate-700">
-                                <button onclick="updateAnalytics('day')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-day">1 วัน</button>
-                                <button onclick="updateAnalytics('week')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-week">7 วัน</button>
-                                <button onclick="updateAnalytics('month')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-month">30 วัน</button>
-                                <button onclick="updateAnalytics('year')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-year">1 ปี</button>
+                                <button onclick="updateAnalytics('day')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-day">DAY</button>
+                                <button onclick="updateAnalytics('week')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-week">WEEK</button>
+                                <button onclick="updateAnalytics('month')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-month">MONTH</button>
+                                <button onclick="updateAnalytics('year')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-year">YEAR</button>
                             </div>
                         </div>
                         
@@ -266,13 +266,11 @@
                     return true;
                 });
 
-                // --- Calculate Most Common Problem ---
                 const issueFreq = {};
                 const dateFreq = {};
                 filteredData.forEach(item => {
                     const date = item.created_at.split('T')[0];
                     dateFreq[date] = (dateFreq[date] || 0) + 1;
-
                     const desc = item.description || "Unspecified Anomaly";
                     issueFreq[desc] = (issueFreq[desc] || 0) + 1;
                 });
@@ -336,13 +334,10 @@
             const desc = document.getElementById('new-description').value;
             const file = document.getElementById('new-file').files[0];
             if (!mId || !file) return alert("System requires Asset Identity and Visual proof.");
-            
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', desc);
             formData.append('machine_id', mId);
-            
-            addLog(`Transmission: Uploading asset ${mId}...`);
             try {
                 await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
                 alert("Successful Data Ingestion!");
