@@ -26,7 +26,8 @@
 
         #log-container::-webkit-scrollbar { width: 4px; }
         #log-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .active-filter { background: #2563eb !important; color: white !important; }
+        .suggestion-item:hover { background-color: #f1f5f9; cursor: pointer; }
+        .dark .suggestion-item:hover { background-color: #1e293b; }
     </style>
 </head>
 <body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200">
@@ -57,13 +58,9 @@
                 <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ Database</button>
                 <button onclick="showTab('summary-tab'); updateAnalytics('week');" id="btn-summary" class="sidebar-btn">📊 สถิติ</button>
             </nav>
-            
             <div class="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
                 <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
                     <p id="cal-month" class="text-[10px] font-bold text-blue-600 uppercase mb-2">Calendar</p>
-                    <div class="grid grid-cols-7 text-center text-[9px] text-slate-400 font-bold mb-2">
-                        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-                    </div>
                     <div id="calendar-days" class="grid grid-cols-7 gap-y-1"></div>
                 </div>
             </div>
@@ -76,49 +73,68 @@
                     <div class="relative w-full bg-white dark:bg-slate-900 p-4 rounded-[2rem] shadow-2xl border dark:border-slate-800 overflow-hidden">
                         <img src="sony_logo.jpg" class="w-full h-80 object-cover rounded-[1.5rem]" alt="Sony Visual">
                         <div class="mt-6 text-center">
-                            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">ยินดีต้อนรับสู่ MachineSync Pro</h2>
-                            <p class="text-slate-500 mt-2">กรุณาเลือกเมนูจากแถบด้านซ้ายเพื่อเริ่มต้นการใช้งาน</p>
+                            <h2 class="text-2xl font-bold text-slate-800 dark:text-white uppercase italic">MachineSync Intelligence Pro</h2>
+                            <p class="text-slate-500 mt-2">Ready to diagnose... Select a module to begin.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="manage-tab" class="tab-content">
-                    <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl shadow-xl space-y-6">
-                        <h2 class="text-xl font-bold text-blue-600 uppercase">Intelligence Base Search</h2>
-                        <div class="flex gap-2 relative">
-                            <div class="relative flex-1">
-                                <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'search-suggestion-list')" placeholder="ป้อน Machine ID..." class="w-full bg-white dark:bg-slate-950 border rounded-xl p-4 outline-none focus:ring-2 ring-blue-500/50 uppercase">
-                                <ul id="search-suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-xl shadow-2xl hidden z-50 overflow-hidden"></ul>
-                            </div>
-                            <button onclick="executeSearch()" class="px-8 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">ANALYZE</button>
+                    <div class="max-w-3xl mx-auto space-y-6">
+                        <div class="relative">
+                            <input type="text" id="search-input" 
+                                oninput="handleSmartSuggest(this.value)"
+                                placeholder="SEARCH MACHINE ID..." 
+                                class="w-full bg-white dark:bg-slate-900 border-2 border-blue-500/20 rounded-2xl p-6 text-xl font-bold outline-none focus:ring-4 ring-blue-500/10 shadow-lg uppercase tracking-wider transition-all">
+                            <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-2xl shadow-2xl hidden z-50 overflow-hidden divide-y dark:divide-slate-800"></ul>
                         </div>
 
-                        <div id="search-history-container" class="hidden animate-in fade-in">
-                            <p class="text-[10px] font-bold text-blue-500 mb-1 uppercase ml-1">ประวัติปัญหาของเครื่องนี้:</p>
-                            <select id="search-history-dropdown" onchange="document.getElementById('search-input').value = this.value; executeSearch();" 
-                                class="w-full p-3 bg-slate-50 dark:bg-slate-900 border rounded-xl outline-none text-sm cursor-pointer">
-                                <option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>
+                        <div id="dropdown-section" class="hidden animate-in fade-in slide-in-from-top-2">
+                            <p class="text-[10px] font-bold text-blue-500 mb-2 uppercase ml-2 tracking-widest">Dropdown ปัญหาที่ตรงกับชื่อ Machine ที่เลือก</p>
+                            <select id="issue-dropdown" onchange="handleIssueSelection(this.value)" 
+                                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm shadow-sm outline-none focus:border-blue-500 transition-all">
+                                <option value="">-- เลือกปัญหาจากประวัติเดิม --</option>
                             </select>
                         </div>
-                        <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+                        <div id="manual-input-section" class="hidden animate-in fade-in">
+                            <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase ml-2 tracking-widest">ป้อนปัญหาได้โดยไม่ต้องเลือกจาก dropdown ก็ได้</p>
+                            <textarea id="manual-issue-input" 
+                                oninput="searchSolution(this.value)"
+                                placeholder="Describe current technical symptoms..." 
+                                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 h-24 text-sm outline-none focus:border-blue-500 shadow-inner"></textarea>
+                        </div>
+
+                        <div id="solution-section" class="hidden animate-in zoom-in duration-500">
+                            <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/20 rounded-3xl p-8 shadow-xl">
+                                <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2 tracking-widest">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ข้อความการแก้ปัญหา (Solution)
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Recommended Action:</p>
+                                        <p id="solution-text" class="text-lg font-medium text-slate-700 dark:text-slate-200"></p>
+                                    </div>
+                                    <div id="cause-container">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Potential Cause:</p>
+                                        <p id="cause-text" class="text-sm text-slate-500 dark:text-slate-400"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="add-tab" class="tab-content">
-                    </div>
-                <div id="db-tab" class="tab-content">
-                    </div>
-                <div id="summary-tab" class="tab-content">
-                    </div>
+                <div id="add-tab" class="tab-content">/* โค้ดเดิม */</div>
+                <div id="db-tab" class="tab-content">/* โค้ดเดิม */</div>
+                <div id="summary-tab" class="tab-content">/* โค้ดเดิม */</div>
 
             </section>
 
-            <footer class="h-32 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
-                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Diagnostic Stream (log)
-                </h3>
-                <div id="log-container" class="flex-1 overflow-y-auto font-mono text-[11px] space-y-1 text-emerald-500 h-full">
-                    <p>>> MachineSync Pro OS v3.5 initialized... OK</p>
+            <footer class="h-32 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
+                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Diagnostic Stream (log)</h3>
+                <div id="log-container" class="flex-1 overflow-y-auto font-mono text-[11px] text-emerald-500 space-y-1 h-full">
+                    <p>>> System Online... MachineSync OS v3.8 Ready.</p>
                 </div>
             </footer>
         </main>
@@ -127,98 +143,88 @@
     <script>
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         let machineNames = [];
-        let machineData = []; 
-        let myChart = null;
+        let machineData = [];
 
-        // ฟังก์ชันจัดการ Suggestion (Case-insensitive)
-        function handleSuggest(val, inputId, listId) {
-            const list = document.getElementById(listId);
+        // 1. ระบบแนะนำชื่อ Machine (Case-insensitive)
+        function handleSmartSuggest(val) {
+            const list = document.getElementById('suggestion-list');
             list.innerHTML = '';
-            if (!val) { list.classList.add('hidden'); return; }
-            
+            if (!val) { 
+                list.classList.add('hidden'); 
+                resetSearchUI();
+                return; 
+            }
+
             const filtered = machineNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
             if (filtered.length > 0) {
                 filtered.forEach(name => {
                     const li = document.createElement('li');
-                    li.className = 'p-3 border-b dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer text-xs font-bold';
+                    li.className = 'p-4 suggestion-item text-sm font-bold border-b dark:border-slate-800 transition-colors';
                     li.textContent = name.toUpperCase();
-                    li.onclick = () => { 
-                        document.getElementById(inputId).value = name; 
-                        list.classList.add('hidden'); 
-                        if(inputId === 'search-input') fetchHistoryIssues(name, true);
-                    };
+                    li.onclick = () => selectMachine(name);
                     list.appendChild(li);
                 });
                 list.classList.remove('hidden');
             } else { list.classList.add('hidden'); }
         }
 
-        // ดึงประวัติปัญหามาทำ Dropdown
-        async function fetchHistoryIssues(mId, isSearchTab = false) {
-            if (!mId) return;
-            const containerId = isSearchTab ? 'search-history-container' : 'history-issue-container';
-            const dropdownId = isSearchTab ? 'search-history-dropdown' : 'history-issue-dropdown';
+        // 2. เมื่อเลือก Machine จากลิสต์
+        async function selectMachine(name) {
+            document.getElementById('search-input').value = name.toUpperCase();
+            document.getElementById('suggestion-list').classList.add('hidden');
+            document.getElementById('dropdown-section').classList.remove('hidden');
+            document.getElementById('manual-input-section').classList.remove('hidden');
+            addLog(`Machine Linked: ${name.toUpperCase()}`);
             
-            const container = document.getElementById(containerId);
-            const dropdown = document.getElementById(dropdownId);
+            // ดึงประวัติปัญหามาใส่ Dropdown
+            const dropdown = document.getElementById('issue-dropdown');
+            dropdown.innerHTML = '<option value="">-- เลือกปัญหาจากประวัติเดิม --</option>';
             
+            const issues = machineData
+                .filter(d => d.machine_id.toUpperCase() === name.toUpperCase())
+                .map(d => d.description)
+                .filter((v, i, a) => a.indexOf(v) === i && v);
+
+            if (issues.length > 0) {
+                issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
+            }
+        }
+
+        // 3. เมื่อเลือกปัญหาจาก Dropdown
+        function handleIssueSelection(val) {
+            if (!val) return;
+            document.getElementById('manual-issue-input').value = val;
+            searchSolution(val);
+        }
+
+        // 4. ค้นหาวิธีแก้ปัญหาจากฐานข้อมูล
+        async function searchSolution(issueText) {
+            const mId = document.getElementById('search-input').value;
+            if (!mId || issueText.length < 2) return;
+
             try {
-                const issues = machineData
-                    .filter(d => d.machine_id.toUpperCase() === mId.toUpperCase())
-                    .map(d => d.description)
-                    .filter((value, index, self) => self.indexOf(value) === index && value);
-                
-                if (issues.length > 0) {
-                    dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
-                    issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
-                    container.classList.remove('hidden');
-                    addLog(`Smart Link: พบ ${issues.length} รายการปัญหาสำหรับเครื่อง ${mId.toUpperCase()}`);
+                const res = await fetch(`${BACKEND_URL}/get-standard-guide/${mId}`);
+                const data = await res.json();
+
+                if (data.status === "found") {
+                    document.getElementById('solution-section').classList.remove('hidden');
+                    document.getElementById('solution-text').innerText = data.solution;
+                    document.getElementById('cause-text').innerText = data.cause;
+                    addLog(`Solution Retrieved for ${mId}`);
                 } else {
-                    container.classList.add('hidden');
+                    document.getElementById('solution-section').classList.add('hidden');
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { addLog("Solution Fetch Error", "error"); }
         }
 
-        // ปรับจูนกราฟให้สเกลเหมาะสม
-        async function updateAnalytics(period = 'week') {
-            // ... (Logic เดิม) ...
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: { /* ... */ },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { stepSize: 1, precision: 0 }, // ปรับให้เป็นเลขจำนวนเต็มเสมอ
-                            grid: { color: 'rgba(0,0,0,0.05)' }
-                        }
-                    }
-                }
-            });
+        function resetSearchUI() {
+            document.getElementById('dropdown-section').classList.add('hidden');
+            document.getElementById('manual-input-section').classList.add('hidden');
+            document.getElementById('solution-section').classList.add('hidden');
+            document.getElementById('manual-issue-input').value = '';
         }
 
-        // ฟังก์ชันสลับเมนู
-        function showTab(id) {
-            document.getElementById('home-state').style.display = id === 'home' ? 'block' : 'none';
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
-            if(id !== 'home') document.getElementById(id).classList.add('active');
-            
-            const btnMap = { 'manage-tab': 'btn-manage', 'add-tab': 'btn-add', 'db-tab': 'btn-db', 'summary-tab': 'btn-summary' };
-            if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
-            else document.getElementById('btn-home').classList.add('active');
-        }
-
-        function showHome() { showTab('home'); }
-        
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            addLog(`UI Theme changed to ${isDark ? 'DARK' : 'LIGHT'}`);
-        }
-
+        // --- Helper Functions (Log, Theme, Tabs) ---
         function addLog(msg, type = 'info') {
             const container = document.getElementById('log-container');
             const p = document.createElement('p');
@@ -227,16 +233,34 @@
             container.prepend(p);
         }
 
+        function showTab(id) {
+            document.getElementById('home-state').style.display = id === 'home' ? 'block' : 'none';
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+            if(id !== 'home') document.getElementById(id).classList.add('active');
+            const btnMap = {'manage-tab': 'btn-manage', 'add-tab': 'btn-add', 'db-tab': 'btn-db', 'summary-tab': 'btn-summary'};
+            if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
+            else document.getElementById('btn-home').classList.add('active');
+        }
+
+        function showHome() { showTab('home'); }
+
+        async function loadNames() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/get-all-machines`);
+                const data = await res.json();
+                machineData = data;
+                machineNames = [...new Set(data.map(d => d.machine_id))];
+            } catch (err) { addLog("Data Sync Error", "error"); }
+        }
+
         window.onload = () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') document.documentElement.classList.add('dark');
             setInterval(() => {
                 const now = new Date();
                 document.getElementById('nav-clock').innerText = now.toLocaleTimeString('en-GB', {hour12: false});
                 document.getElementById('nav-date').innerText = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', weekday:'short'}).toUpperCase();
             }, 1000);
-            showHome();
-            loadNames(); // ฟังก์ชันดึง Machine Names จาก API
+            loadNames();
         };
     </script>
 </body>
