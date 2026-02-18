@@ -7,9 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
         body { font-family: 'Inter', 'Kanit', sans-serif; overflow: hidden; }
         .tab-content { display: none; }
@@ -17,18 +15,11 @@
         .sidebar-btn { width: 100%; text-align: left; padding: 12px 16px; border-radius: 12px; transition: all 0.3s; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; }
         .sidebar-btn:hover { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
         .sidebar-btn.active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
-
-        .calendar-grid div { height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
-        .today { background: #2563eb; color: white; border-radius: 6px; width: 20px; height: 20px; }
-
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
         .dark .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
-
         #log-container::-webkit-scrollbar { width: 4px; }
-        #log-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .suggestion-item { padding: 12px 16px; font-size: 14px; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; transition: background 0.2s; }
-        .suggestion-item:hover { background: #f8fafc; color: #2563eb; }
-        .dark .suggestion-item:hover { background: #1e293b; }
+        .suggestion-item:hover { background-color: #f1f5f9; cursor: pointer; color: #2563eb; }
+        .dark .suggestion-item:hover { background-color: #1e293b; }
     </style>
 </head>
 <body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200">
@@ -41,7 +32,7 @@
         <div class="flex items-center gap-8">
             <div class="text-right border-r dark:border-slate-800 pr-6">
                 <p id="nav-clock" class="text-base font-semibold font-mono text-blue-600 leading-none">00:00:00</p>
-                <p id="nav-date" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loading...</p>
+                <p id="nav-date" class="text-[10px] text-slate-400 font-bold uppercase">Loading...</p>
             </div>
             <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-sm">
                 <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
@@ -52,107 +43,83 @@
     <div class="flex flex-1 overflow-hidden">
         <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
             <nav class="flex-1 space-y-2">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
                 <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 Overview</button>
                 <button onclick="showTab('manage-tab')" id="btn-manage" class="sidebar-btn">🛠️ Intel Search</button>
                 <button onclick="showTab('add-tab')" id="btn-add" class="sidebar-btn">➕ เพิ่มปัญหาใหม่</button>
                 <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ Database</button>
                 <button onclick="showTab('summary-tab'); updateAnalytics('week');" id="btn-summary" class="sidebar-btn">📊 สถิติ</button>
             </nav>
-            <div class="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
-                <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
-                    <p id="cal-month" class="text-[10px] font-bold text-blue-600 uppercase mb-2">Calendar</p>
-                    <div id="calendar-days" class="grid grid-cols-7 gap-y-1"></div>
-                </div>
-            </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden relative">
             <section class="flex-1 p-8 overflow-y-auto">
                 <div id="home-state" class="max-w-4xl mx-auto animate-in fade-in duration-700">
                     <div class="relative w-full bg-white dark:bg-slate-900 p-4 rounded-[2rem] shadow-2xl border dark:border-slate-800 overflow-hidden">
-                        <img src="sony_logo.jpg" class="w-full h-80 object-cover rounded-[1.5rem]" alt="Sony">
+                        <img src="sony_logo.jpg" class="w-full h-80 object-cover rounded-[1.5rem]" alt="Sony Visual">
                     </div>
                 </div>
 
                 <div id="manage-tab" class="tab-content">
                     <div class="max-w-3xl mx-auto space-y-6">
                         <div class="relative">
-                            <input type="text" id="search-input" 
-                                oninput="handleSmartSuggest(this.value)"
-                                placeholder="TYPE MACHINE ID (e.g. MTF, FSA)..." 
-                                class="w-full bg-white dark:bg-slate-900 border-2 border-blue-500/20 rounded-2xl p-6 text-xl font-bold outline-none focus:ring-4 ring-blue-500/10 shadow-lg uppercase transition-all">
-                            <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-2xl shadow-2xl hidden z-50 overflow-hidden"></ul>
+                            <input type="text" id="search-input" oninput="handleSmartSuggest(this.value)" placeholder="SEARCH MACHINE ID..." class="w-full bg-white dark:bg-slate-900 border-2 border-blue-500/20 rounded-2xl p-6 text-xl font-bold outline-none focus:ring-4 ring-blue-500/10 uppercase shadow-lg transition-all">
+                            <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-2xl shadow-2xl hidden z-50 overflow-hidden divide-y dark:divide-slate-800"></ul>
                         </div>
 
                         <div id="dropdown-section" class="hidden animate-in slide-in-from-top-2">
-                            <p class="text-[10px] font-bold text-blue-500 mb-2 uppercase ml-2">Historical Issues Found:</p>
-                            <select id="issue-dropdown" onchange="handleIssueSelection(this.value)" 
-                                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm shadow-sm cursor-pointer outline-none">
-                                <option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>
+                            <select id="issue-dropdown" onchange="handleIssueSelection(this.value)" class="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm shadow-sm cursor-pointer">
+                                <option value="">-- เลือกปัญหาจากประวัติเดิม --</option>
                             </select>
                         </div>
 
                         <div id="manual-input-section" class="hidden animate-in fade-in">
-                            <textarea id="manual-issue-input" 
-                                oninput="checkInstantSolution(this.value)"
-                                placeholder="Or type incident manually here..." 
-                                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 h-24 text-sm shadow-inner outline-none"></textarea>
+                            <textarea id="manual-issue-input" oninput="searchSolution(this.value)" placeholder="ป้อนปัญหาได้โดยไม่ต้องเลือกจาก dropdown..." class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 h-24 text-sm shadow-inner"></textarea>
                         </div>
 
                         <div id="solution-section" class="hidden animate-in zoom-in duration-500">
                             <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-500/30 rounded-3xl p-8 shadow-xl">
-                                <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2">🛠️ Solution Guidelines</h3>
+                                <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2">🛠️ ข้อความการแก้ปัญหา (Solution)</h3>
                                 <div class="space-y-4">
-                                    <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action:</p><p id="solution-text" class="text-lg font-medium text-slate-700 dark:text-slate-200"></p></div>
-                                    <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause:</p><p id="cause-text" class="text-sm text-slate-500 dark:text-slate-400"></p></div>
+                                    <p id="solution-text" class="text-lg font-medium text-slate-700 dark:text-slate-200"></p>
+                                    <p id="cause-text" class="text-sm text-slate-500"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
+                </section>
 
-                <div id="add-tab" class="tab-content">/* ...ส่วนนี้เพื่อนใส่โค้ดชุดเดิมที่มี Registration ได้เลยครับ... */</div>
-                <div id="db-tab" class="tab-content">/* ...ตาราง Database เดิม... */</div>
-                <div id="summary-tab" class="tab-content">/* ...กราฟเดิม... */</div>
-            </section>
-
-            <footer class="h-32 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-5 flex flex-col shrink-0">
-                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Diagnostic Stream (log)</h3>
+            <footer class="h-32 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-5">
+                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Diagnostic Stream (log)</h3>
                 <div id="log-container" class="flex-1 overflow-y-auto font-mono text-[11px] text-emerald-500 space-y-1 h-full"></div>
             </footer>
         </main>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
-        let machineNames = []; 
-        let allIncidentData = [];
+        const BACKEND_URL = 'https://machine-system-project.onrender.com';
+        let machineNames = []; let allIncidentData = [];
 
-        // 1. โหลดข้อมูลรายชื่อเครื่องทั้งหมดทันทีเมื่อเปิดเว็บ เพื่อใช้แนะนำ
         async function loadInitialData() {
             try {
                 addLog("System: Synchronizing with Cloud Database...");
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 allIncidentData = await res.json();
-                
-                // ดึงเฉพาะชื่อเครื่องที่ไม่ซ้ำกันมาทำ Suggestion;]
                 machineNames = [...new Set(allIncidentData.map(d => d.machine_id.toUpperCase()))];
-                addLog(`Success: Indexed ${machineNames.length} unique assets for suggestions.`, "success");
+                addLog(`Success: Indexed ${machineNames.length} assets. Ready to search.`, "success");
             } catch (err) { addLog("Sync Error: Backend unreachable.", "error"); }
         }
 
-        // 2. ระบบแนะนำขณะพิมพ์ (Case-insensitive)
         function handleSmartSuggest(val) {
             const list = document.getElementById('suggestion-list');
             list.innerHTML = '';
             if (!val) { list.classList.add('hidden'); resetSearchUI(); return; }
-
             const filtered = machineNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
             if (filtered.length > 0) {
                 filtered.forEach(name => {
                     const li = document.createElement('li');
-                    li.className = 'suggestion-item';
+                    li.className = 'p-4 suggestion-item text-sm font-bold border-b dark:border-slate-800 transition-colors';
                     li.textContent = name;
                     li.onclick = () => selectMachine(name);
                     list.appendChild(li);
@@ -161,7 +128,6 @@
             } else { list.classList.add('hidden'); }
         }
 
-        // 3. เมื่อเลือกเครื่อง: แสดง Dropdown ปัญหาเดิม
         async function selectMachine(name) {
             document.getElementById('search-input').value = name;
             document.getElementById('suggestion-list').classList.add('hidden');
@@ -169,38 +135,28 @@
             document.getElementById('manual-input-section').classList.remove('hidden');
             
             const dropdown = document.getElementById('issue-dropdown');
-            dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
-            
-            const issues = allIncidentData
-                .filter(d => d.machine_id.toUpperCase() === name.toUpperCase())
-                .map(d => d.description)
-                .filter((v, i, a) => a.indexOf(v) === i && v);
-
-            if (issues.length > 0) {
-                issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
-            } else { dropdown.innerHTML += '<option disabled>No previous incidents recorded.</option>'; }
-            
-            addLog(`Machine Linked: ${name}. ${issues.length} history records found.`);
+            dropdown.innerHTML = '<option value="">-- เลือกปัญหาจากประวัติเดิม --</option>';
+            const issues = allIncidentData.filter(d => d.machine_id.toUpperCase() === name.toUpperCase()).map(d => d.description).filter((v, i, a) => a.indexOf(v) === i && v);
+            if (issues.length > 0) issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
+            addLog(`Machine Linked: ${name}`);
         }
 
         function handleIssueSelection(val) {
             if (!val) return;
             document.getElementById('manual-issue-input').value = val;
-            checkInstantSolution(val);
+            searchSolution(val);
         }
 
-        // 4. เช็กวิธีแก้ปัญหา (Excel Data)
-        async function checkInstantSolution(val) {
+        async function searchSolution(issueText) {
             const mId = document.getElementById('search-input').value;
-            if (!mId || val.length < 2) return;
-
+            if (!mId || issueText.length < 2) return;
             try {
                 const res = await fetch(`${BACKEND_URL}/get-standard-guide/${mId}`);
                 const data = await res.json();
                 if (data.status === "found") {
                     document.getElementById('solution-section').classList.remove('hidden');
                     document.getElementById('solution-text').innerText = data.solution;
-                    document.getElementById('cause-text').innerText = data.cause;
+                    document.getElementById('cause-text').innerText = `Potential Cause: ${data.cause}`;
                 } else { document.getElementById('solution-section').classList.add('hidden'); }
             } catch (err) {}
         }
@@ -211,7 +167,6 @@
             document.getElementById('solution-section').classList.add('hidden');
         }
 
-        // ระบบเปลี่ยนหน้าและเมนูคงเดิม
         function showTab(id) {
             document.getElementById('home-state').style.display = id === 'home' ? 'block' : 'none';
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -224,11 +179,10 @@
         function showHome() { showTab('home'); }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
         function addLog(msg, type = 'info') {
-            const container = document.getElementById('log-container');
             const p = document.createElement('p');
-            p.className = type === 'error' ? 'text-red-500' : (type === 'success' ? 'text-blue-400' : 'text-emerald-500');
+            p.className = type === 'error' ? 'text-red-500' : 'text-emerald-500';
             p.innerHTML = `>> [${new Date().toLocaleTimeString()}] ${msg}`;
-            container.prepend(p);
+            document.getElementById('log-container').prepend(p);
         }
 
         window.onload = () => {
@@ -237,7 +191,7 @@
                 document.getElementById('nav-clock').innerText = now.toLocaleTimeString('en-GB', {hour12: false});
                 document.getElementById('nav-date').innerText = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', weekday:'short'}).toUpperCase();
             }, 1000);
-            loadInitialData(); // ดึงข้อมูลแนะนำทันทีที่โหลดหน้า
+            loadInitialData();
         };
     </script>
 </body>
