@@ -21,6 +21,9 @@
         .calendar-grid div { height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
         .today { background: #2563eb; color: white; border-radius: 6px; width: 20px; height: 20px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.4); }
 
+        #tab1-dropdown { transition: all 0.4s ease; overflow: hidden; max-height: 0; opacity: 0; }
+        #tab1-dropdown.open { max-height: 250px; opacity: 1; margin-top: 8px; }
+
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
         .dark .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
 
@@ -52,7 +55,16 @@
             <nav class="flex-1 space-y-1">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
                 <button onclick="showHome()" id="btn-home" class="sidebar-btn active">🏠 หน้าแรก (Overview)</button>
-                <button onclick="showTab('manage-tab')" id="btn-manage" class="sidebar-btn">🛠️ Intelligence Search</button>
+                <div class="relative">
+                    <button onclick="toggleTab1()" id="btn-tab1-head" class="sidebar-btn justify-between">
+                        <span class="flex items-center gap-3">🛠️ Intelligence Search</span>
+                        <span id="arrow" class="text-[10px] opacity-50 transition-transform">▼</span>
+                    </button>
+                    <div id="tab1-dropdown" class="pl-9 space-y-1">
+                        <button onclick="activateMode('machine')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• By Machine ID</button>
+                        <button onclick="activateMode('model')" class="w-full text-left py-2 text-[11px] hover:text-blue-600 font-medium transition-all">• By Symptom/Model</button>
+                    </div>
+                </div>
                 <button onclick="showTab('add-tab')" id="btn-add" class="sidebar-btn">📝 Register Incident</button>
                 <button onclick="showTab('db-tab'); fetchAllRecords();" id="btn-db" class="sidebar-btn">🗄️ Database Center</button>
                 <button onclick="showTab('summary-tab'); updateAnalytics('week');" id="btn-summary" class="sidebar-btn">📊 Operational Intel</button>
@@ -88,10 +100,10 @@
 
                 <div id="manage-tab" class="tab-content">
                     <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl shadow-xl space-y-6">
-                        <h2 class="text-xl font-bold text-blue-600 uppercase tracking-tight">Intelligence Base Search</h2>
+                        <h2 id="search-title" class="text-xl font-bold text-blue-600 uppercase tracking-tight">Intelligence Base Search</h2>
                         <div class="flex gap-2 relative">
                             <div class="relative flex-1">
-                                <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'suggestion-list')" placeholder="Enter Machine ID or Symptom..." class="w-full bg-white dark:bg-slate-950 border rounded-xl p-3.5 outline-none focus:ring-2 ring-blue-500/50 transition-all">
+                                <input type="text" id="search-input" oninput="handleSuggest(this.value, 'search-input', 'suggestion-list')" placeholder="Enter parameters..." class="w-full bg-white dark:bg-slate-950 border rounded-xl p-3.5 outline-none focus:ring-2 ring-blue-500/50 transition-all">
                                 <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-900 border rounded-xl shadow-2xl hidden z-50 overflow-hidden"></ul>
                             </div>
                             <button onclick="executeSearch()" class="px-8 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">ANALYZE</button>
@@ -175,6 +187,7 @@
                                 <button onclick="updateAnalytics('year')" class="time-filter px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all" id="filter-year">YEAR</button>
                             </div>
                         </div>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-between">
                                 <p class="text-[10px] font-bold uppercase opacity-80 mb-2">จำนวนปัญหาทั้งหมดในช่วงเวลานี้</p>
@@ -186,6 +199,7 @@
                                 <p id="top-issue-count" class="text-xs text-blue-500 font-medium mt-1">จำนวนครั้งที่พบ: 0</p>
                             </div>
                         </div>
+
                         <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
                             <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">กราฟสถิติความถี่การแจ้งปัญหาตามวันเวลา</p>
                             <div class="h-80 w-full"><canvas id="analyticsChart"></canvas></div>
@@ -199,7 +213,7 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Diagnostic Stream
                 </h3>
                 <div id="log-container" class="flex-1 overflow-y-auto font-mono text-[10px] space-y-1 text-emerald-500 leading-relaxed scroll-smooth h-full">
-                    <p>>> MachineSync Pro OS v3.0 initialized... OK</p>
+                    <p>>> MachineSync Pro OS v2.5 initialized... OK</p>
                 </div>
             </footer>
         </main>
@@ -210,11 +224,21 @@
         let machineNames = [];
         let machineData = []; 
         let myChart = null;
+        let currentSearchMode = 'machine';
 
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             addLog(`UI Theme changed to ${isDark ? 'DARK' : 'LIGHT'}`);
+        }
+
+        function toggleTab1() { document.getElementById('tab1-dropdown').classList.toggle('open'); }
+
+        function activateMode(mode) {
+            currentSearchMode = mode;
+            showTab('manage-tab');
+            document.getElementById('search-title').innerText = mode === 'machine' ? 'Hardware Intel Search' : 'Technical Symptom Search';
+            addLog(`Analytics Engine: Mode set to ${mode.toUpperCase()}`);
         }
 
         function showTab(id) {
@@ -223,7 +247,7 @@
             document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
             if(id !== 'home') document.getElementById(id).classList.add('active');
             
-            const btnMap = { 'manage-tab': 'btn-manage', 'add-tab': 'btn-add', 'db-tab': 'btn-db', 'summary-tab': 'btn-summary' };
+            const btnMap = { 'manage-tab': 'btn-tab1-head', 'add-tab': 'btn-add', 'db-tab': 'btn-db', 'summary-tab': 'btn-summary' };
             if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
             else document.getElementById('btn-home').classList.add('active');
         }
@@ -245,15 +269,18 @@
             }
         }
 
+        // --- เพิ่มฟังก์ชันดึงปัญหาที่เคยเกิดกับเครื่องจักรนั้นๆ ---
         async function fetchHistoryIssues(mId) {
             if (!mId) return;
             const container = document.getElementById('history-issue-container');
             const dropdown = document.getElementById('history-issue-dropdown');
+            
             try {
+                // กรองจากข้อมูลที่มีอยู่แล้วในหน้าเว็บ (machineData) 
                 const issues = machineData
                     .filter(d => d.machine_id.toUpperCase() === mId.toUpperCase())
                     .map(d => d.description)
-                    .filter((value, index, self) => self.indexOf(value) === index && value);
+                    .filter((value, index, self) => self.indexOf(value) === index && value); // ลบตัวซ้ำและค่าว่าง
                 
                 if (issues.length > 0) {
                     dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
@@ -261,6 +288,7 @@
                         dropdown.innerHTML += `<option value="${issue}">${issue}</option>`;
                     });
                     container.classList.remove('hidden');
+                    addLog(`Smart Register: Found ${issues.length} history records for ${mId}`);
                 } else {
                     container.classList.add('hidden');
                 }
@@ -269,21 +297,26 @@
 
         function applySelectedIssue(val) {
             if (!val) return;
-            document.getElementById('new-description').value = val;
-            checkInstantSolution(val);
+            const descInput = document.getElementById('new-description');
+            descInput.value = val;
+            checkInstantSolution(val); // ตรวจสอบวิธีแก้ทันที
         }
 
+        // --- ฟังก์ชันเช็กวิธีแก้ปัญหาทันทีจากคู่มือ (Excel Data) ---
         async function checkInstantSolution(val) {
             const mId = document.getElementById('new-machine-id').value;
             const suggestionBox = document.getElementById('instant-suggestion');
             const suggestionText = document.getElementById('suggested-solution-text');
+
             if (!mId || val.length < 2) {
                 suggestionBox.classList.add('hidden');
                 return;
             }
+
             try {
                 const res = await fetch(`${BACKEND_URL}/get-standard-guide/${mId}`);
                 const data = await res.json();
+
                 if (data.status === "found") {
                     suggestionBox.classList.remove('hidden');
                     suggestionText.innerText = data.solution;
@@ -294,146 +327,209 @@
         }
 
         async function updateAnalytics(period = 'week') {
+            addLog(`Analytics: Filtering for ${period.toUpperCase()}...`);
             document.querySelectorAll('.time-filter').forEach(btn => btn.classList.remove('active-filter'));
             document.getElementById(`filter-${period}`).classList.add('active-filter');
+
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
                 machineData = data; 
                 if (data.length === 0) return;
+
                 const now = new Date();
                 const filteredData = data.filter(item => {
                     if (!item.created_at) return false;
                     const itemDate = new Date(item.created_at);
-                    const diffDays = Math.ceil(Math.abs(now - itemDate) / (1000 * 60 * 60 * 24));
+                    const diffTime = Math.abs(now - itemDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if (period === 'day') return diffDays <= 1;
                     if (period === 'week') return diffDays <= 7;
                     if (period === 'month') return diffDays <= 30;
                     if (period === 'year') return diffDays <= 365;
                     return true;
                 });
-                const issueFreq = {}; const dateFreq = {};
+
+                const issueFreq = {};
+                const dateFreq = {};
                 filteredData.forEach(item => {
                     const date = item.created_at.split('T')[0];
                     dateFreq[date] = (dateFreq[date] || 0) + 1;
                     const desc = item.description || "Unspecified Anomaly";
                     issueFreq[desc] = (issueFreq[desc] || 0) + 1;
                 });
+
                 const sortedIssues = Object.entries(issueFreq).sort((a, b) => b[1] - a[1]);
-                document.getElementById('top-issue-desc').innerText = sortedIssues.length > 0 ? sortedIssues[0][0] : "No Data";
-                document.getElementById('top-issue-count').innerText = `จำนวนครั้งที่พบ: ${sortedIssues.length > 0 ? sortedIssues[0][1] : 0}`;
+                const topIssue = sortedIssues.length > 0 ? sortedIssues[0] : ["No Data", 0];
+                
+                document.getElementById('top-issue-desc').innerText = topIssue[0];
+                document.getElementById('top-issue-count').innerText = `จำนวนครั้งที่พบ: ${topIssue[1]}`;
                 document.getElementById('total-count').innerText = filteredData.length;
+
                 const labels = Object.keys(dateFreq).sort();
                 const counts = labels.map(l => dateFreq[l]);
+
                 const ctx = document.getElementById('analyticsChart').getContext('2d');
                 if (myChart) myChart.destroy();
                 myChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ label: 'Frequency', data: counts, backgroundColor: '#2563eb', borderRadius: 6 }]
+                        datasets: [{
+                            label: 'Frequency of Incidents',
+                            data: counts,
+                            backgroundColor: '#2563eb',
+                            borderRadius: 6,
+                            barThickness: labels.length > 10 ? 'flex' : 30,
+                            maxBarThickness: 50
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'COUNT', font: { weight: 'bold', size: 10 } } },
+                            x: { title: { display: true, text: 'REPORTED DATE (YYYY-MM-DD)', font: { weight: 'bold', size: 10 } } }
+                        }
+                    }
                 });
-            } catch (err) { addLog("Analytics Error", "error"); }
+                addLog("Visualization: Analytics refreshed.");
+            } catch (err) { addLog("Analytics Error: Failed to compute.", "error"); }
         }
 
         async function fetchAllRecords() {
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
+                machineData = data;
                 const tbody = document.getElementById('db-table-body');
-                tbody.innerHTML = data.map(item => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
-                        <td class="p-4"><img src="${item.url}" class="w-10 h-10 object-cover rounded border border-white dark:border-slate-800"></td>
-                        <td class="p-4 text-[10px] opacity-70">${item.description || '-'}</td>
-                        <td class="p-4 text-right font-mono opacity-50">${new Date(item.created_at).toLocaleString('en-GB')}</td>
-                    </tr>`).join('');
+                tbody.innerHTML = data.map(item => {
+                    const dateObj = new Date(item.created_at);
+                    const formattedDate = dateObj.toLocaleString('en-GB'); 
+                    
+                    return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="p-4 font-bold text-blue-600">${item.machine_id}</td>
+                            <td class="p-4"><img src="${item.url}" class="w-10 h-10 object-cover rounded border border-white dark:border-slate-800"></td>
+                            <td class="p-4 text-[10px] opacity-70">${item.description || '-'}</td>
+                            <td class="p-4 text-right font-mono opacity-50">${formattedDate}</td>
+                        </tr>`;
+                }).join('');
+                addLog(`Database: Synchronized ${data.length} master entries.`);
             } catch (err) {}
         }
 
         async function submitData() {
             const mId = document.getElementById('new-machine-id').value;
             const desc = document.getElementById('new-description').value;
-            const file = document.getElementById('new-file').files[0];
-            if (!mId || !file) { addLog("Required ID and Image", "error"); return; }
+            const fileInput = document.getElementById('new-file');
+            const file = fileInput.files[0];
+            
+            if (!mId || !file) {
+                addLog("Validation Error: Machine ID and Image are required.", "error");
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('file', file);
             formData.append('description', desc);
             formData.append('machine_id', mId);
+            
+            addLog(`Transmission: Uploading asset ${mId}...`);
             try {
-                await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
-                addLog(`Success: Recorded ${mId}`, "success");
+                const response = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
+                addLog(`Success: Incident for ${mId} successfully recorded.`, "success");
+                
+                // เคลียร์ค่า
                 document.getElementById('new-machine-id').value = '';
                 document.getElementById('new-description').value = '';
                 document.getElementById('history-issue-container').classList.add('hidden');
                 document.getElementById('instant-suggestion').classList.add('hidden');
+                fileInput.value = '';
                 document.getElementById('register-preview').classList.add('hidden');
                 document.getElementById('preview-placeholder').classList.remove('hidden');
-                loadNames(); updateAnalytics('week');
-            } catch (err) { addLog("Upload Failed", "error"); }
+                
+                loadNames();
+                updateAnalytics('week'); 
+            } catch (err) { addLog("Gateway Error: Packet transmission failed.", "error"); }
         }
 
         async function executeSearch() {
             const input = document.getElementById('search-input').value;
             const resultsDiv = document.getElementById('search-results');
             if (!input) return;
+
+            addLog(`Query Engine: Analyzing asset ${input}...`);
+            
             try {
                 const guideRes = await fetch(`${BACKEND_URL}/get-standard-guide/${input}`);
                 const guideData = await guideRes.json();
+                
                 let guideHtml = '';
                 if (guideData.status === "found") {
                     guideHtml = `
-                        <div class="col-span-full bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-800 mb-4">
-                            <h3 class="text-emerald-600 font-bold text-sm uppercase mb-3 flex items-center gap-2">🛠️ Standard Solution</h3>
+                        <div class="col-span-full bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-800 mb-4 animate-in slide-in-from-top duration-500">
+                            <h3 class="text-emerald-600 font-bold text-sm uppercase mb-3 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 🛠️ Standard Solution (Manual)
+                            </h3>
                             <div class="space-y-3">
-                                <p class="text-sm text-slate-700 dark:text-slate-300 font-medium">${guideData.solution}</p>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause:</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-300 font-medium">${guideData.cause}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action:</p>
+                                    <p class="text-sm text-slate-700 dark:text-slate-300">${guideData.solution}</p>
+                                </div>
                             </div>
-                        </div>`;
+                        </div>
+                    `;
                 }
-                const filtered = machineData.filter(d => 
-                    d.machine_id.toUpperCase().includes(input.toUpperCase()) || 
-                    d.description.toUpperCase().includes(input.toUpperCase())
-                );
+
+                const filtered = machineData.filter(d => d.machine_id.toUpperCase().includes(input.toUpperCase()));
                 const historyHtml = filtered.map(item => `
-                    <div class="glass-panel rounded-2xl overflow-hidden border dark:border-slate-800 p-4">
-                        <img src="${item.url}" class="w-full h-32 object-cover rounded-xl mb-3">
-                        <span class="text-[8px] font-black px-2 py-1 bg-blue-600 text-white rounded-md uppercase">${item.machine_id}</span>
-                        <p class="mt-2 font-bold text-xs truncate">${item.description || '-'}</p>
+                    <div class="glass-panel rounded-2xl overflow-hidden shadow-sm border dark:border-slate-800 animate-in fade-in duration-700">
+                        <div class="h-40 overflow-hidden"><img src="${item.url}" class="w-full h-full object-cover"></div>
+                        <div class="p-5">
+                            <span class="text-[8px] font-black px-2 py-1 bg-blue-600 text-white rounded-md uppercase">${item.machine_id}</span>
+                            <p class="mt-2 font-bold text-xs truncate">${item.description || '-'}</p>
+                        </div>
                     </div>`).join('');
-                resultsDiv.innerHTML = guideHtml + (historyHtml || '<p class="col-span-full text-center text-xs opacity-50 py-10">No records found.</p>');
-            } catch (err) { addLog("Search Error", "error"); }
+
+                resultsDiv.innerHTML = guideHtml + (historyHtml || '<p class="col-span-full text-center text-xs opacity-50 py-10">No incident history found for this machine.</p>');
+                
+            } catch (err) { 
+                addLog("Search Error: Could not retrieve guidelines.", "error"); 
+            }
         }
 
         async function clearDatabase() {
-            if(!confirm("Purge all data?")) return;
+            if(!confirm("DANGER: This will purge all production data. Proceed?")) return;
+            addLog("Database: Purge initiated...");
             try {
                 await fetch(`${BACKEND_URL}/clear-database`, { method: 'DELETE' });
-                addLog("Database Cleared", "error");
+                addLog("Database: All records have been cleared.", "error");
                 document.getElementById('db-table-body').innerHTML = '';
-            } catch (err) {}
+                updateAnalytics('week');
+            } catch (err) { addLog("Error: Could not clear database.", "error"); }
         }
 
         async function loadNames() {
             try {
-                const res = await fetch(`${BACKEND_URL}/get-all-machines`);
-                const data = await res.json();
-                machineNames = [...new Set(data.map(d => d.machine_id))];
+                const res = await fetch(`${BACKEND_URL}/get-machine-names`);
+                machineNames = await res.json();
             } catch (err) {}
         }
 
-        // แก้ไข: ค้นหาแบบ Case-Insensitive (ไม่สนพิมพ์ใหญ่/เล็ก)
         function handleSuggest(val, inputId, listId) {
             const list = document.getElementById(listId);
             list.innerHTML = '';
             if (!val) { list.classList.add('hidden'); return; }
-            // กรองโดยใช้ .toLowerCase() ทั้งหมด
             const filtered = machineNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
             if (filtered.length > 0) {
                 filtered.forEach(name => {
                     const li = document.createElement('li');
-                    li.className = 'p-3 border-b dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer text-xs font-bold';
+                    li.className = 'p-3 border-b dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-slate-800 cursor-pointer text-xs font-bold transition';
                     li.textContent = name;
                     li.onclick = () => { document.getElementById(inputId).value = name; list.classList.add('hidden'); };
                     list.appendChild(li);
