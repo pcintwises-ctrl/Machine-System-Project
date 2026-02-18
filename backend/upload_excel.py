@@ -2,47 +2,64 @@ import pandas as pd
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
+import sys
 
 # 1. โหลดค่าการเชื่อมต่อจากไฟล์ .env
 load_dotenv()
 
-# 2. ตั้งค่าพาธไฟล์ Excel ของเพื่อน (ระบุที่อยู่ไฟล์ให้ถูกต้อง)
+# 2. ตั้งค่าพาธไฟล์ Excel (ตรวจสอบให้มั่นใจว่าไฟล์อยู่ที่นี่จริงๆ)
 EXCEL_PATH = r"C:\data\problem.xlsx" 
 
 def migrate_excel_to_mongodb():
     try:
-        # --- อ่านข้อมูลจาก Excel ---
+        # --- ขั้นตอนที่ 1: อ่านไฟล์ Excel ---
+        if not os.path.exists(EXCEL_PATH):
+            print(f"❌ ไม่พบไฟล์ Excel ที่: {EXCEL_PATH}")
+            return
+
         print("🔍 กำลังอ่านไฟล์ Excel...")
         df = pd.read_excel(EXCEL_PATH)
         
-        # ล้างค่าว่าง (NaN) ให้เป็นข้อความว่าง เพื่อป้องกัน Error ในฐานข้อมูล
+        # ล้างค่าว่าง (NaN) ให้เป็นข้อความว่างเพื่อป้องกัน Error
         df = df.fillna("")
         
-        # แปลงข้อมูลใน DataFrame ให้เป็น List ของ Dictionary (JSON format)
+        # ตรวจสอบชื่อคอลัมน์ (เลือกเฉพาะคอลัมน์ที่จำเป็น)
+        # หากชื่อคอลัมน์ใน Excel ของเพื่อนต่างออกไป ให้แก้ชื่อใน [] นะครับ
+        required_cols = ["machine", "solv", "Cause & Positions to be checked"]
+        for col in required_cols:
+            if col not in df.columns:
+                print(f"⚠️ คำเตือน: ไม่พบคอลัมน์ '{col}' ในไฟล์ Excel (ข้อมูลอาจแสดงผลไม่ครบ)")
+
         records = df.to_dict('records')
         print(f"📦 พบข้อมูลทั้งหมด {len(records)} รายการ")
 
-        # --- เชื่อมต่อ MongoDB Atlas ---
-        client = MongoClient(os.getenv("MONGO_DETAILS"))
+        # --- ขั้นตอนที่ 2: เชื่อมต่อ MongoDB Atlas ---
+        mongo_uri = os.getenv("MONGO_DETAILS")
+        if not mongo_uri:
+            print("❌ ไม่พบ MONGO_DETAILS ในไฟล์ .env")
+            return
+
+        client = MongoClient(mongo_uri)
+        # ระบุชื่อ Database และ Collection ให้ชัดเจน
         db = client.factory_db
-        
-        # สร้าง Collection ใหม่ชื่อ 'troubleshooting_guide' สำหรับเก็บข้อมูลจาก Excel
         collection = db.troubleshooting_guide
         
-        # ล้างข้อมูลเก่าออกก่อน (ถ้ามี) เพื่อให้ข้อมูลเป็นเวอร์ชันล่าสุดเสมอ
-        print("🗑️ กำลังล้างข้อมูลเก่าใน Collection...")
-        collection.delete_many({})
+        print(f"📡 กำลังเชื่อมต่อ Database: {db.name}")
+
+        # --- ขั้นตอนที่ 3: ล้างข้อมูลเก่าและอัปโหลดใหม่ ---
+        print("🗑️ กำลังล้างข้อมูลเก่าใน Collection: troubleshooting_guide...")
+        delete_result = collection.delete_many({})
+        print(f"🧹 ลบข้อมูลเดิมออกแล้ว {delete_result.deleted_count} รายการ")
         
-        # --- อัปโหลดข้อมูล ---
         print("🚀 กำลังส่งข้อมูลขึ้น MongoDB Atlas...")
         if records:
-            collection.insert_many(records)
-            print("✅ สำเร็จ! ข้อมูลคู่มือถูกเก็บไว้บน Cloud เรียบร้อยแล้ว")
+            result = collection.insert_many(records)
+            print(f"✅ สำเร็จ! อัปโหลดข้อมูลใหม่ {len(result.inserted_ids)} รายการเรียบร้อยแล้ว")
         else:
-            print("⚠️ ไม่พบข้อมูลในไฟล์ Excel")
+            print("⚠️ ไม่มีข้อมูลให้อัปโหลด")
 
     except Exception as e:
-        print(f"❌ เกิดข้อผิดพลาด: {e}")
+        print(f"❌ เกิดข้อผิดพลาดร้ายแรง: {e}")
 
 if __name__ == "__main__":
     migrate_excel_to_mongodb()

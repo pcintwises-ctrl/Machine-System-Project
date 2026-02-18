@@ -123,6 +123,25 @@ async def clear_database():
         return {"status": "Database Cleared"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+# เพิ่มส่วนนี้ลงไปใน main.py ของเพื่อนครับ
+
+@app.get("/get-machine-issues/{machine_id}")
+async def get_machine_issues(machine_id: str):
+    try:
+        # ระบบจะไปค้นหาใน Database ว่าเครื่อง ID นี้ เคยบันทึกปัญหาอะไรไว้บ้าง
+        # โดยใช้คำสั่ง distinct เพื่อไม่ให้ชื่อปัญหาซ้ำกันมาแสดงใน Dropdown
+        issues = await machine_collection.distinct(
+            "description", 
+            {"machine_id": machine_id.strip().upper()}
+        )
+        
+        # กรองข้อมูลเอาเฉพาะที่มีข้อความ ไม่เอาค่าว่าง
+        filtered_issues = [issue for issue in issues if issue]
+        return filtered_issues
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

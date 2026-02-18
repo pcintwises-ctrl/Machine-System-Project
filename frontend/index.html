@@ -115,9 +115,34 @@
                 <div id="add-tab" class="tab-content">
                     <div class="max-w-xl mx-auto glass-panel p-8 rounded-3xl shadow-xl space-y-5">
                         <h2 class="text-xl font-bold text-slate-900 dark:text-white">Incident Registration</h2>
-                        <input type="text" id="new-machine-id" placeholder="Machine ID / Model" class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all">
-                        <textarea id="new-description" placeholder="Technical Symptoms..." class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl h-28 outline-none focus:ring-2 ring-blue-500/50 transition-all"></textarea>
                         
+                        <input type="text" id="new-machine-id" 
+                            onblur="fetchHistoryIssues(this.value)"
+                            placeholder="Machine ID (e.g., MTF-01)" 
+                            class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl outline-none focus:ring-2 ring-blue-500/50 transition-all uppercase">
+                        
+                        <div id="history-issue-container" class="hidden animate-in fade-in duration-300">
+                            <p class="text-[9px] font-bold text-blue-500 mb-1 uppercase ml-1">Historical Issues Found:</p>
+                            <select id="history-issue-dropdown" onchange="applySelectedIssue(this.value)" 
+                                class="w-full p-3 bg-slate-50 dark:bg-slate-900 border rounded-xl outline-none text-xs text-slate-600 cursor-pointer">
+                                <option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>
+                            </select>
+                        </div>
+
+                        <textarea id="new-description" 
+                            oninput="checkInstantSolution(this.value)"
+                            placeholder="Technical Symptoms..." 
+                            class="w-full p-3 bg-white dark:bg-slate-950 border rounded-xl h-28 outline-none focus:ring-2 ring-blue-500/50 transition-all"></textarea>
+                        
+                        <div id="instant-suggestion" class="hidden animate-in slide-in-from-top-2 duration-500">
+                            <div class="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                                <p class="text-[10px] font-bold text-emerald-600 uppercase mb-1 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Smart Solution Found
+                                </p>
+                                <p id="suggested-solution-text" class="text-xs text-slate-600 dark:text-slate-300 italic"></p>
+                            </div>
+                        </div>
+
                         <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
                             <div id="preview-placeholder" class="text-center">
                                 <span class="text-2xl">📸</span>
@@ -197,7 +222,7 @@
     <script>
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         let machineNames = [];
-        let machineData = []; // เก็บประวัติอุบัติการณ์
+        let machineData = []; 
         let myChart = null;
         let currentSearchMode = 'machine';
 
@@ -244,6 +269,63 @@
             }
         }
 
+        // --- เพิ่มฟังก์ชันดึงปัญหาที่เคยเกิดกับเครื่องจักรนั้นๆ ---
+        async function fetchHistoryIssues(mId) {
+            if (!mId) return;
+            const container = document.getElementById('history-issue-container');
+            const dropdown = document.getElementById('history-issue-dropdown');
+            
+            try {
+                // กรองจากข้อมูลที่มีอยู่แล้วในหน้าเว็บ (machineData) 
+                const issues = machineData
+                    .filter(d => d.machine_id.toUpperCase() === mId.toUpperCase())
+                    .map(d => d.description)
+                    .filter((value, index, self) => self.indexOf(value) === index && value); // ลบตัวซ้ำและค่าว่าง
+                
+                if (issues.length > 0) {
+                    dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
+                    issues.forEach(issue => {
+                        dropdown.innerHTML += `<option value="${issue}">${issue}</option>`;
+                    });
+                    container.classList.remove('hidden');
+                    addLog(`Smart Register: Found ${issues.length} history records for ${mId}`);
+                } else {
+                    container.classList.add('hidden');
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function applySelectedIssue(val) {
+            if (!val) return;
+            const descInput = document.getElementById('new-description');
+            descInput.value = val;
+            checkInstantSolution(val); // ตรวจสอบวิธีแก้ทันที
+        }
+
+        // --- ฟังก์ชันเช็กวิธีแก้ปัญหาทันทีจากคู่มือ (Excel Data) ---
+        async function checkInstantSolution(val) {
+            const mId = document.getElementById('new-machine-id').value;
+            const suggestionBox = document.getElementById('instant-suggestion');
+            const suggestionText = document.getElementById('suggested-solution-text');
+
+            if (!mId || val.length < 2) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/get-standard-guide/${mId}`);
+                const data = await res.json();
+
+                if (data.status === "found") {
+                    suggestionBox.classList.remove('hidden');
+                    suggestionText.innerText = data.solution;
+                } else {
+                    suggestionBox.classList.add('hidden');
+                }
+            } catch (err) { }
+        }
+
         async function updateAnalytics(period = 'week') {
             addLog(`Analytics: Filtering for ${period.toUpperCase()}...`);
             document.querySelectorAll('.time-filter').forEach(btn => btn.classList.remove('active-filter'));
@@ -252,7 +334,7 @@
             try {
                 const res = await fetch(`${BACKEND_URL}/get-all-machines`);
                 const data = await res.json();
-                machineData = data; // อัปเดตข้อมูลประวัติ
+                machineData = data; 
                 if (data.length === 0) return;
 
                 const now = new Date();
@@ -357,17 +439,21 @@
             try {
                 const response = await fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData });
                 addLog(`Success: Incident for ${mId} successfully recorded.`, "success");
+                
+                // เคลียร์ค่า
                 document.getElementById('new-machine-id').value = '';
                 document.getElementById('new-description').value = '';
+                document.getElementById('history-issue-container').classList.add('hidden');
+                document.getElementById('instant-suggestion').classList.add('hidden');
                 fileInput.value = '';
                 document.getElementById('register-preview').classList.add('hidden');
                 document.getElementById('preview-placeholder').classList.remove('hidden');
+                
                 loadNames();
-                updateAnalytics('week'); // อัปเดตข้อมูลใหม่ทันที
+                updateAnalytics('week'); 
             } catch (err) { addLog("Gateway Error: Packet transmission failed.", "error"); }
         }
 
-        // --- แก้ไข: ดึงคู่มือจาก Excel มาแสดงร่วมกับประวัติรูปภาพ ---
         async function executeSearch() {
             const input = document.getElementById('search-input').value;
             const resultsDiv = document.getElementById('search-results');
@@ -376,7 +462,6 @@
             addLog(`Query Engine: Analyzing asset ${input}...`);
             
             try {
-                // 1. ดึงข้อมูลคู่มือมาตรฐาน (ที่ Import มาจาก Excel)
                 const guideRes = await fetch(`${BACKEND_URL}/get-standard-guide/${input}`);
                 const guideData = await guideRes.json();
                 
@@ -401,7 +486,6 @@
                     `;
                 }
 
-                // 2. ดึงประวัติรูปภาพเดิม
                 const filtered = machineData.filter(d => d.machine_id.toUpperCase().includes(input.toUpperCase()));
                 const historyHtml = filtered.map(item => `
                     <div class="glass-panel rounded-2xl overflow-hidden shadow-sm border dark:border-slate-800 animate-in fade-in duration-700">
@@ -489,7 +573,7 @@
             updateClock();
             generateCalendar();
             loadNames();
-            updateAnalytics('week'); // โหลดข้อมูลเบื้องต้น
+            updateAnalytics('week'); 
         };
     </script>
 </body>
