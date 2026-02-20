@@ -97,5 +97,7 @@ async def delete_guide(guide_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 MTF SUP Backend API is running on http://127.0.0.1:8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # ให้ระบบเช็กว่า Render สั่งให้ใช้ Port ไหน ถ้าไม่มีให้ใช้ 8000 เป็นค่าเริ่มต้น
+    port = int(os.environ.get("PORT", 8000)) 
+    print(f"🚀 MTF SUP Backend API is running on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
