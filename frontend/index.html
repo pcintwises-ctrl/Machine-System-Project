@@ -248,6 +248,37 @@
         </main>
     </div>
 
+    <div id="quick-problem-modal" class="modal">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-lg p-8 rounded-3xl shadow-2xl relative border border-slate-200 dark:border-slate-700">
+            <button onclick="closeProblemModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition bg-slate-100 dark:bg-slate-800 rounded-full p-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="flex items-center gap-4 mb-6 border-b dark:border-slate-700 pb-4">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 rounded-xl flex items-center justify-center font-black text-2xl shadow-inner">⚙️</div>
+                <div class="overflow-hidden">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Machine</p>
+                    <h3 id="pm-machine" class="font-black text-blue-700 dark:text-blue-400 text-xl truncate">MACHINE</h3>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-red-50 dark:bg-red-900/10 p-3 rounded-xl border border-red-100 dark:border-red-800/30">
+                    <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Problem (ปัญหา):</p>
+                    <p id="pm-problem" class="text-sm font-bold text-red-600 dark:text-red-400 mt-1"></p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cause (สาเหตุ):</p>
+                    <p id="pm-cause" class="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1"></p>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border-2 border-emerald-500/30 shadow-sm mt-4">
+                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Recommended Action (วิธีแก้)
+                    </p>
+                    <p id="pm-solution" class="text-base font-semibold text-slate-800 dark:text-slate-200 whitespace-pre-line"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="login-modal" class="modal">
         <div class="bg-white dark:bg-slate-900 w-80 p-8 rounded-3xl shadow-2xl text-center border border-slate-200 dark:border-slate-700">
             <div class="text-4xl mb-4">🔐</div>
@@ -315,13 +346,16 @@
             const grid = document.getElementById('overview-grid');
             const countLabel = document.getElementById('overview-count');
             
-            // จัดกลุ่มข้อมูลปัญหาตามชื่อเครื่องจักร
+            // จัดกลุ่มปัญหาและเก็บ ID ของข้อมูลนั้นไว้ด้วยเพื่อเอาไว้เรียก Popup
             const grouped = {};
             allData.forEach(item => {
                 const m = item.machine.toUpperCase();
-                if (!grouped[m]) grouped[m] = new Set();
+                if (!grouped[m]) grouped[m] = [];
+                // กรองข้อมูลซ้ำและค่าว่าง
                 if (item.problem && item.problem !== "-" && item.problem !== "General Error") {
-                    grouped[m].add(item.problem);
+                    if(!grouped[m].some(x => x.problem === item.problem)) {
+                        grouped[m].push({ id: item.id, problem: item.problem });
+                    }
                 }
             });
 
@@ -334,13 +368,19 @@
             }
 
             grid.innerHTML = machineKeys.map(m => {
-                const problems = Array.from(grouped[m]);
-                // ดึงปัญหามาโชว์ 5 อันแรก
+                const problems = grouped[m];
+                
+                // สร้าง HTML ของลิสต์ปัญหา (ใส่ onclick หยุดการคลุมคลิกของการ์ด แล้วเปิด Popup)
                 const probHtml = problems.length > 0 
-                    ? problems.slice(0, 5).map(p => `<li class="text-sm text-slate-600 dark:text-slate-300 truncate font-medium">▪ ${p}</li>`).join('')
-                    : `<li class="text-sm text-slate-400 italic">No specific problems recorded</li>`;
-                // ถ้ามีมากกว่า 5 อันให้โชว์ตัวเลข
-                const moreHtml = problems.length > 5 ? `<li class="text-xs text-blue-500 font-bold mt-2 pt-2 border-t dark:border-slate-700">+${problems.length - 5} more issues...</li>` : '';
+                    ? problems.slice(0, 5).map(p => `
+                        <li onclick="event.stopPropagation(); openProblemModal('${p.id}')" 
+                            class="text-sm text-slate-600 dark:text-slate-300 truncate font-medium hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700/50 p-1.5 rounded-lg cursor-pointer transition">
+                            ▪ ${p.problem}
+                        </li>
+                    `).join('')
+                    : `<li class="text-sm text-slate-400 italic p-1.5">No specific problems recorded</li>`;
+                
+                const moreHtml = problems.length > 5 ? `<li class="text-xs text-blue-500 font-bold mt-2 pt-2 border-t dark:border-slate-700 px-1.5">+${problems.length - 5} more issues...</li>` : '';
                 
                 return `
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition duration-300 group cursor-pointer" onclick="jumpToSearch('${m}')">
@@ -351,7 +391,7 @@
                             <h3 class="font-black text-blue-700 dark:text-blue-400 text-xl truncate">${m}</h3>
                         </div>
                     </div>
-                    <ul class="space-y-1.5">
+                    <ul class="space-y-0.5">
                         ${probHtml}
                         ${moreHtml}
                     </ul>
@@ -360,13 +400,27 @@
             }).join('');
         }
 
+        // --- ฟังก์ชันสำหรับ Popup หน้า Overview ---
+        function openProblemModal(id) {
+            const match = allData.find(d => d.id === id);
+            if (match) {
+                document.getElementById('pm-machine').innerText = match.machine;
+                document.getElementById('pm-problem').innerText = match.problem;
+                document.getElementById('pm-cause').innerText = match.cause || "ไม่ระบุสาเหตุ";
+                document.getElementById('pm-solution').innerText = match.solution || "ไม่ระบุวิธีแก้ไข";
+                document.getElementById('quick-problem-modal').classList.add('active');
+            }
+        }
+        function closeProblemModal() {
+            document.getElementById('quick-problem-modal').classList.remove('active');
+        }
+
         // คีย์ลัด: คลิกการ์ดในหน้าแรกแล้วเด้งไปค้นหาเครื่องนั้นเลย
         function jumpToSearch(machineName) {
             switchTab('intel-search');
             document.getElementById('is-search').value = machineName;
             selectMachine(machineName);
         }
-
 
         // --- 2. ฟังก์ชัน Intel Search ---
         function handleSmartSuggest(val) {
@@ -457,7 +511,7 @@
         function renderTable() {
             const tbody = document.getElementById('db-body');
             tbody.innerHTML = allData.map(row => `
-                <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition">
+                <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition border-b dark:border-slate-800">
                     <td class="p-4 font-bold text-blue-600 uppercase whitespace-nowrap">${row.machine}</td>
                     <td class="p-4 text-[10px] text-slate-500 whitespace-nowrap font-mono">${row.model}<br>${row.line} | ${row.process}</td>
                     <td class="p-4 text-sm font-medium">${row.problem}</td>
