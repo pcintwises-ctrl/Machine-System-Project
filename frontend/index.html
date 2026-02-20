@@ -3,57 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support process | Troubleshooting</title>
+    <title>MachineSync Pro | Advanced Maintenance Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script> tailwind.config = { darkMode: 'class' } </script>
     <style>
-        body { font-family: 'Kanit', sans-serif; }
+        body { font-family: 'Kanit', sans-serif; overflow: hidden; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 30px 0 rgba(31, 38, 135, 0.1); }
-        .dark .glass-panel { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 30px 0 rgba(31, 38, 135, 0.05); }
+        .dark .glass-panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.5); }
         
-        .sidebar-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .sidebar-btn { width: 100%; text-align: left; padding: 12px 16px; border-radius: 12px; transition: all 0.3s; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; }
+        .sidebar-btn:hover { background: rgba(37, 99, 235, 0.1); color: #2563eb; transform: translateX(4px); }
+        .sidebar-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transform: translateX(4px); }
         .sidebar-btn.active svg { stroke: white; }
         
-        .wf-input { width: 100%; padding: 10px 14px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #cbd5e1; background: rgba(255,255,255,0.9); transition: all 0.3s; font-size: 0.95rem; }
-        .wf-input:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+        .wf-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #cbd5e1; background: rgba(255,255,255,0.9); transition: all 0.3s; font-size: 0.95rem; outline: none; }
+        .wf-input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
         .dark .wf-input { background: rgba(30, 41, 59, 0.8); border-color: #475569; color: white; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
         .modal.active { display: flex; animation: fadeIn 0.3s; }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background-color: #475569; }
 
         #mobile-sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-open { transform: translateX(0) !important; }
-        
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200 overflow-hidden relative">
+<body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200 relative">
 
-    <header class="h-16 glass-panel flex items-center justify-between px-4 lg:px-6 z-50 shrink-0">
+    <header class="h-16 glass-panel flex items-center justify-between px-4 lg:px-6 z-50 shrink-0 border-b border-slate-200 dark:border-slate-800">
         <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             <div class="flex items-center gap-3">
-                <div class="h-9 w-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-extrabold shadow-md border border-white/20">
+                <div class="h-10 w-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center text-white font-black shadow-lg border border-white/20">
                     <span class="text-[10px] leading-none text-center">MTF<br>SUP</span>
                 </div>
-                <h1 class="text-lg lg:text-xl font-extrabold tracking-tight uppercase hidden sm:block text-slate-800 dark:text-slate-100 transition-colors">
-                    Machine trouble <span class="text-blue-600"> guideline</span>
+                <h1 class="text-xl font-black tracking-tight uppercase hidden sm:block text-slate-800 dark:text-white">
+                    MachineSync <span class="text-blue-600">Pro</span>
                 </h1>
             </div>
         </div>
-        <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
-            <div id="clock" class="text-xs lg:text-sm font-mono font-bold text-blue-600 bg-blue-50 dark:bg-slate-800 px-2 lg:px-3 py-1.5 rounded-lg border border-blue-100 dark:border-slate-700 shadow-sm">00:00:00</div>
-            <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 shadow-sm active:scale-95">
-                <span class="dark:hidden">☀️</span>
-                <span class="hidden dark:inline">🌙</span>
+        <div class="flex items-center gap-4">
+            <div id="clock" class="text-sm font-mono font-bold text-blue-600 bg-blue-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-slate-700">00:00:00</div>
+            <button onclick="toggleTheme()" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all shadow-sm">
+                <span class="dark:hidden">☀️</span><span class="hidden dark:inline">🌙</span>
             </button>
         </div>
     </header>
@@ -63,372 +66,348 @@
 
         <aside id="mobile-sidebar" class="absolute lg:relative w-64 h-full glass-panel border-r border-slate-200 dark:border-slate-800 p-4 flex flex-col shrink-0 z-40 transform -translate-x-full lg:translate-x-0 bg-[#f1f5f9] dark:bg-slate-950 lg:bg-transparent">
             <div class="space-y-1">
-                <button onclick="switchTab('overview')" class="sidebar-btn active w-full text-left p-3 rounded-xl font-medium flex gap-3 items-center hover:bg-blue-50 dark:hover:bg-slate-800 transition text-sm lg:text-base">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
+                <button onclick="switchTab('overview')" class="sidebar-btn active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     Overview
                 </button>
-                <button onclick="switchTab('view-mode')" class="sidebar-btn w-full text-left p-3 rounded-xl font-medium flex gap-3 items-center hover:bg-blue-50 dark:hover:bg-slate-800 transition text-sm lg:text-base">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    View Mode
+                <button onclick="switchTab('intel-search')" class="sidebar-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Intel Search
                 </button>
-                <button onclick="switchTab('add-mode')" class="sidebar-btn w-full text-left p-3 rounded-xl font-medium flex gap-3 items-center hover:bg-blue-50 dark:hover:bg-slate-800 transition text-sm lg:text-base">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                    Add Mode
+                <button onclick="switchTab('add-record')" class="sidebar-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    เพิ่มปัญหาใหม่
                 </button>
-                <button onclick="switchTab('database')" class="sidebar-btn w-full text-left p-3 rounded-xl font-medium flex gap-3 items-center hover:bg-blue-50 dark:hover:bg-slate-800 transition text-sm lg:text-base">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                <button onclick="switchTab('database')" class="sidebar-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     Database
                 </button>
+                <button onclick="switchTab('statistics')" class="sidebar-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    สถิติ
+                </button>
+            </div>
+            
+            <div class="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-center shadow-inner">
+                    <p id="cal-month" class="text-[10px] font-bold text-blue-600 uppercase mb-2">Calendar</p>
+                    <div class="grid grid-cols-7 text-center text-[9px] text-slate-400 font-bold mb-2">
+                        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                    </div>
+                    <div id="calendar-days" class="grid grid-cols-7 gap-y-1"></div>
+                </div>
             </div>
         </aside>
 
-        <main class="flex-1 p-4 lg:p-6 flex flex-col h-full overflow-hidden relative w-full">
-            <div class="flex-1 overflow-y-auto custom-scroll pb-4">
+        <main class="flex-1 p-4 lg:p-8 flex flex-col h-full overflow-hidden relative w-full">
+            <div class="flex-1 overflow-y-auto custom-scroll pb-20">
                 
-                <div id="overview" class="tab-content active h-full">
-                    <div class="max-w-6xl mx-auto glass-panel rounded-2xl p-6 shadow-xl min-h-full">
-                        <h2 class="text-xl font-bold text-blue-600 uppercase mb-6">📊 Machines Overview</h2>
-                        <div id="overview-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="overview" class="tab-content active">
+                    <div class="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-700">
+                        <div class="relative w-full bg-white dark:bg-slate-900 p-3 rounded-[2rem] shadow-2xl border dark:border-slate-800 overflow-hidden">
+                            <img src="sony_logo.jpg" class="w-full h-80 object-cover rounded-[1.5rem]" alt="Sony Visual">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8 pointer-events-none">
+                                <h2 class="text-3xl font-black text-white uppercase italic tracking-wider">Ready to diagnose</h2>
+                                <p class="text-blue-200 font-medium">Select Intel Search to find solutions.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="view-mode" class="tab-content h-full">
-                    <div class="max-w-4xl mx-auto glass-panel rounded-2xl p-6 lg:p-8 shadow-xl min-h-full flex flex-col">
-                        <h2 class="text-xl font-bold text-blue-600 mb-6 border-b border-slate-200 dark:border-slate-700 pb-2">🔍 View Mode (ค้นหาวิธีแก้ปัญหา)</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Search Machine</label>
-                                <input type="text" id="vm-search" class="wf-input" placeholder="พิมพ์ชื่อเครื่อง (เช่น fno)..." onkeyup="updateVM_Machines()">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Select Machine</label>
-                                <select id="vm-machine" class="wf-input cursor-pointer" onchange="updateVM_Problems()">
-                                    <option value="">-- รอระบุ --</option>
-                                </select>
-                            </div>
+                <div id="intel-search" class="tab-content">
+                    <div class="max-w-3xl mx-auto glass-panel rounded-3xl p-8 shadow-2xl">
+                        <h2 class="text-2xl font-black text-blue-600 uppercase mb-6 flex items-center gap-2">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            Intelligence Search
+                        </h2>
+                        
+                        <div class="relative mb-6">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2 tracking-widest">Search Machine Name</label>
+                            <input type="text" id="is-search" class="wf-input text-lg font-bold uppercase py-4" placeholder="พิมพ์ชื่อเครื่องที่นี่ (เช่น MTF)..." oninput="handleSmartSuggest(this.value)">
+                            <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-2xl hidden z-50 max-h-60 overflow-y-auto divide-y dark:divide-slate-700"></ul>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Problem (ปัญหา)</label>
-                                <select id="vm-problem" class="wf-input cursor-pointer" onchange="updateVM_Causes()">
-                                    <option value="">-- รอเลือกเครื่องจักร --</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Cause (สาเหตุ)</label>
-                                <select id="vm-cause" class="wf-input cursor-pointer" onchange="displayVM_Solution()">
-                                    <option value="">-- รอเลือกปัญหา --</option>
-                                </select>
-                            </div>
+
+                        <div id="is-dropdown-section" class="hidden animate-in fade-in slide-in-from-top-2 mb-6">
+                            <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Dropdown ปัญหาที่ตรงกับชื่อ Machine ที่ผู้ใช้เลือก</label>
+                            <select id="is-problem-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-4" onchange="handleProblemSelect(this.value)">
+                                <option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>
+                            </select>
                         </div>
-                        <div class="flex-1 flex flex-col gap-4">
-                            <div class="p-6 bg-blue-50 dark:bg-slate-800/50 rounded-xl border border-blue-100 dark:border-slate-700 flex flex-col">
-                                <div class="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
-                                    <h3 class="font-bold text-blue-600">💡 วิธีการแก้ปัญหา (Solution)</h3>
-                                    <a id="vm-link" href="#" target="_blank" class="hidden text-xs bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full font-bold hover:bg-emerald-200 text-center w-full sm:w-auto transition shadow-sm">🔗 เปิดคู่มือเครื่อง</a>
+
+                        <div id="is-manual-section" class="hidden animate-in fade-in mb-6">
+                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest ml-1">ป้อนปัญหาได้โดยไม่ต้องเลือกจาก dropdown ก็ได้</label>
+                            <textarea id="is-problem-manual" class="wf-input h-28 resize-none" placeholder="อธิบายอาการเสียที่พบ..." oninput="searchSolution(this.value)"></textarea>
+                        </div>
+
+                        <div id="is-solution-section" class="hidden animate-in zoom-in duration-300">
+                            <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/30 rounded-2xl p-6 shadow-lg">
+                                <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> ข้อความการแก้ปัญหา
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action (วิธีแก้):</p>
+                                        <p id="is-solution-text" class="text-lg font-semibold text-slate-800 dark:text-white mt-1 whitespace-pre-line"></p>
+                                    </div>
+                                    <div class="p-3 bg-white/50 dark:bg-slate-950/50 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause (สาเหตุ):</p>
+                                        <p id="is-cause-text" class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1"></p>
+                                    </div>
                                 </div>
-                                <p id="vm-sol" class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">กรุณาเลือกสาเหตุเพื่อดูคำตอบ...</p>
-                            </div>
-                            <div class="flex-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 p-4 min-h-[150px]">
-                                <p id="vm-no-img" class="text-slate-400 font-bold text-sm">ไม่มีรูปภาพประกอบ</p>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
-                <div id="add-mode" class="tab-content h-full">
-                    <div class="max-w-3xl mx-auto glass-panel rounded-2xl p-8 shadow-xl">
-                        <h2 class="text-xl font-bold text-emerald-600 mb-6 border-b pb-2 dark:border-slate-700">➕ Add New Record</h2>
+                <div id="add-record" class="tab-content">
+                    <div class="max-w-3xl mx-auto glass-panel rounded-3xl p-8 shadow-2xl">
+                        <h2 class="text-xl font-bold text-emerald-600 mb-6 border-b pb-2 dark:border-slate-700">➕ บันทึกปัญหาใหม่ (Add Record)</h2>
                         <form id="add-form" onsubmit="event.preventDefault(); addDataToAPI();">
                             <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div><label class="font-bold text-sm">Machine Name</label><input type="text" id="add-m" class="wf-input" required></div>
-                                <div><label class="font-bold text-sm">Model</label><input type="text" id="add-mo" class="wf-input" required></div>
-                                <div><label class="font-bold text-sm">Line</label><input type="text" id="add-l" class="wf-input" required></div>
-                                <div><label class="font-bold text-sm">Process</label><input type="text" id="add-po" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500">Machine Name</label><input type="text" id="add-m" class="wf-input uppercase" required></div>
+                                <div><label class="font-bold text-sm text-slate-500">Model</label><input type="text" id="add-mo" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500">Line</label><input type="text" id="add-l" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500">Process</label><input type="text" id="add-po" class="wf-input" required></div>
                             </div>
-                            <div class="mb-4"><label class="font-bold text-sm">Problem</label><input type="text" id="add-p" class="wf-input" required></div>
-                            <div class="mb-4"><label class="font-bold text-sm">Cause</label><input type="text" id="add-c" class="wf-input" required></div>
-                            <div class="mb-4"><label class="font-bold text-sm">Solution</label><textarea id="add-s" class="wf-input h-24" required></textarea></div>
-                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg transition hover:-translate-y-1 cursor-pointer">💾 SAVE RECORD TO DATABASE</button>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Problem (ปัญหา)</label><input type="text" id="add-p" class="wf-input" required></div>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Cause (สาเหตุ)</label><input type="text" id="add-c" class="wf-input" required></div>
+                            <div class="mb-6"><label class="font-bold text-sm text-slate-500">Solution (วิธีแก้)</label><textarea id="add-s" class="wf-input h-24 resize-none" required></textarea></div>
+                            <button type="submit" class="w-full bg-emerald-600 text-white font-black tracking-widest py-4 rounded-xl shadow-lg hover:bg-emerald-700 transition cursor-pointer">💾 SAVE TO DATABASE</button>
                         </form>
                     </div>
                 </div>
 
                 <div id="database" class="tab-content h-full">
-                    <div class="glass-panel rounded-2xl p-6 flex flex-col min-h-full shadow-xl">
+                    <div class="glass-panel rounded-3xl p-6 flex flex-col min-h-full shadow-2xl">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-bold text-slate-700 dark:text-white uppercase tracking-tight">Database Master Records</h2>
+                            <h2 class="text-xl font-black text-slate-800 dark:text-white uppercase">🗄️ Master Database</h2>
                             <button id="admin-login-btn" onclick="openLoginModal()" class="bg-slate-800 dark:bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                EDIT MODE
+                                ⚙️ EDIT MODE
                             </button>
                             <button id="admin-logout-btn" onclick="adminLogout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
-                                🔒 EXIT EDIT MODE
+                                🔒 EXIT EDIT
                             </button>
                         </div>
-                        
                         <div class="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 custom-scroll">
                             <table class="w-full text-left border-collapse text-sm min-w-[900px]">
                                 <thead class="bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 shadow-sm">
                                     <tr>
-                                        <th class="p-4 font-bold text-slate-500 uppercase whitespace-nowrap">Machine</th>
-                                        <th class="p-4 font-bold text-slate-500 uppercase whitespace-nowrap">MLP Info</th>
+                                        <th class="p-4 font-bold text-slate-500 uppercase">Machine</th>
+                                        <th class="p-4 font-bold text-slate-500 uppercase">Info (Mod/Lin/Pro)</th>
                                         <th class="p-4 font-bold text-slate-500 uppercase w-1/4">Problem</th>
-                                        <th class="p-4 font-bold text-slate-500 uppercase w-1/4">Cause</th>
+                                        <th class="p-4 font-bold text-slate-500 uppercase w-1/3">Solution</th>
                                         <th id="th-action" class="hidden p-4 font-bold text-slate-500 uppercase text-center w-24">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="db-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                                <tbody id="db-body" class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/50"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
+                <div id="statistics" class="tab-content h-full">
+                    <div class="max-w-5xl mx-auto space-y-6">
+                        <div class="glass-panel rounded-3xl p-6 flex justify-between items-center shadow-lg">
+                            <div>
+                                <h2 class="text-xl font-black uppercase text-blue-600">📊 Operational Intel</h2>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">วิเคราะห์ความถี่ของปัญหา</p>
+                            </div>
+                            <button onclick="updateAnalytics()" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-200 transition">🔄 Refresh</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-center h-40">
+                                <p class="text-xs font-bold uppercase opacity-80">Total Incidents in DB</p>
+                                <p id="stat-total" class="text-6xl font-black mt-2">0</p>
+                            </div>
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700 h-40 flex flex-col justify-center">
+                                <p class="text-xs font-bold text-slate-400 uppercase">Most Frequent Machine</p>
+                                <p id="stat-top-machine" class="text-2xl font-black text-slate-800 dark:text-white truncate mt-2">Analyzing...</p>
+                                <p id="stat-top-count" class="text-sm text-blue-500 font-bold mt-1">Count: 0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Top 10 Machine Failure Frequency</p>
+                            <div class="h-80 w-full"><canvas id="analyticsChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <footer class="mt-auto shrink-0 h-10 flex items-center px-4 border-l-4 border-blue-500 bg-white/50 dark:bg-slate-900/50">
-                <p id="log-msg" class="text-xs font-mono text-blue-600 dark:text-blue-400">System Ready...</p>
+
+            <footer class="absolute bottom-0 left-0 right-0 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex items-center px-6 z-40">
+                <div class="w-full flex items-center gap-4">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                    <p id="log-msg" class="text-xs font-mono text-emerald-600 dark:text-emerald-400 truncate font-bold w-full">System Ready. Awaiting commands...</p>
+                </div>
             </footer>
         </main>
     </div>
 
-    <div id="quick-solution-modal" class="modal">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-lg p-6 rounded-2xl shadow-2xl relative">
-            <button onclick="closeQuickSolution()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            <div class="flex items-center gap-3 mb-4 border-b pb-3 dark:border-slate-700">
-                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 text-blue-600 rounded-lg flex items-center justify-center font-bold">⚙️</div>
-                <h3 id="qs-machine" class="font-bold text-lg text-slate-800 dark:text-slate-100">Machine</h3>
-            </div>
-            <div class="mb-3">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Problem</p>
-                <p id="qs-problem" class="font-semibold text-red-500 text-sm mt-1">-</p>
-            </div>
-            <div class="mb-4">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cause</p>
-                <p id="qs-cause" class="text-slate-700 dark:text-slate-300 text-sm mt-1">-</p>
-            </div>
-            <div class="bg-blue-50 dark:bg-slate-800/50 p-4 rounded-xl border border-blue-100 dark:border-slate-700">
-                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">💡 Solution</p>
-                <p id="qs-solution" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">-</p>
-            </div>
-        </div>
-    </div>
-
     <div id="login-modal" class="modal">
-        <div class="bg-white dark:bg-slate-900 w-80 p-8 rounded-3xl shadow-2xl text-center">
-            <div class="text-3xl mb-4">🔐</div>
-            <h3 class="font-bold text-lg mb-2">Admin Authentication</h3>
-            <p class="text-xs text-slate-400 mb-6">กรุณากรอกรหัสผ่านเพื่อแก้ไข Database</p>
-            <input type="text" id="login-user" class="wf-input" placeholder="Username">
-            <input type="password" id="login-pass" class="wf-input" placeholder="Password">
+        <div class="bg-white dark:bg-slate-900 w-80 p-8 rounded-3xl shadow-2xl text-center border border-slate-200 dark:border-slate-700">
+            <div class="text-4xl mb-4">🔐</div>
+            <h3 class="font-bold text-lg mb-2 text-slate-800 dark:text-white">Admin Access</h3>
+            <p class="text-[10px] text-slate-400 mb-6 uppercase tracking-widest">Restricted Area</p>
+            <input type="text" id="login-user" class="wf-input mb-3" placeholder="Username">
+            <input type="password" id="login-pass" class="wf-input mb-6" placeholder="Password">
             <div class="flex gap-2">
-                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer">Cancel</button>
-                <button onclick="verifyLogin()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md cursor-pointer">Login</button>
+                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="verifyLogin()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">Login</button>
             </div>
         </div>
     </div>
 
     <div id="edit-modal" class="modal">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-8 rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-            <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                Edit Master Record
-            </h2>
-            <div class="overflow-y-auto custom-scroll pr-2 flex-1">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-8 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] border border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-black mb-6 text-blue-600">✏️ Edit Master Record</h2>
+            <div class="overflow-y-auto custom-scroll pr-2 flex-1 space-y-4">
                 <input type="hidden" id="edit-id">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div><label class="text-xs font-bold text-slate-400 uppercase">Machine</label><input type="text" id="em-m" class="wf-input"></div>
-                    <div><label class="text-xs font-bold text-slate-400 uppercase">Model</label><input type="text" id="em-mo" class="wf-input"></div>
-                    <div><label class="text-xs font-bold text-slate-400 uppercase">Line</label><input type="text" id="em-l" class="wf-input"></div>
-                    <div><label class="text-xs font-bold text-slate-400 uppercase">Process</label><input type="text" id="em-po" class="wf-input"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Machine</label><input type="text" id="em-m" class="wf-input font-bold text-blue-600 uppercase"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Model</label><input type="text" id="em-mo" class="wf-input"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Line</label><input type="text" id="em-l" class="wf-input"></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Process</label><input type="text" id="em-po" class="wf-input"></div>
                 </div>
-                <div class="mb-4"><label class="text-xs font-bold text-slate-400 uppercase">Problem</label><input type="text" id="em-p" class="wf-input"></div>
-                <div class="mb-4"><label class="text-xs font-bold text-slate-400 uppercase">Cause</label><input type="text" id="em-c" class="wf-input"></div>
-                <div class="mb-4"><label class="text-xs font-bold text-slate-400 uppercase">Solution</label><textarea id="em-s" class="wf-input h-32"></textarea></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Problem</label><input type="text" id="em-p" class="wf-input"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Cause</label><input type="text" id="em-c" class="wf-input"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Solution</label><textarea id="em-s" class="wf-input h-32 resize-none"></textarea></div>
             </div>
             <div class="flex gap-4 mt-6 pt-6 border-t dark:border-slate-800">
-                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer">Cancel</button>
-                <button onclick="saveEditToAPI()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition cursor-pointer">Update Database</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-4 rounded-xl font-bold transition">Cancel</button>
+                <button onclick="saveEditToAPI()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">UPDATE RECORD</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ------------------------------------------------------------------
-        // การตั้งค่า Backend URL (ต้องเปิด Python app.py ทิ้งไว้เสมอเพื่อให้เซฟได้)
-        // ------------------------------------------------------------------
-        const BACKEND_URL = 'http://127.0.0.1:8000';
+        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ของคุณ ---
+        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         
         let allData = []; 
+        let machineNames = [];
         let isAdmin = false; 
+        let myChart = null;
 
-        // Mock Data เผื่อกรณีลืมเปิด Backend หรือเชื่อมต่อไม่สำเร็จ 
-        const mockData = [
-            { id: 'm1', machine: 'F_NO', model: 'Alpha', line: 'L1', process: 'Assembly', problem: 'โปรแกรม Azusa ไม่อัปโหลด', cause: 'สาย LAN หลวม หรือ IP ชนกัน', solution: '1. ตรวจสอบและขยับสาย LAN\n2. เช็ค IP Address ในการตั้งค่า Windows' },
-            { id: 'm2', machine: 'FLARE', model: 'Alpha', line: 'L1', process: 'Inspection', problem: 'ไฟเตือนสีแดงกระพริบ', cause: 'เซ็นเซอร์จับชิ้นงานหลวม', solution: 'ตรวจสอบสายเซ็นเซอร์บริเวณจุดรับชิ้นงานและขันน็อตให้แน่น' },
-            { id: 'm3', machine: 'MTF', model: 'Beta', line: 'L2', process: 'Testing', problem: 'อ่านค่า Resolution ไม่ได้', cause: 'เลนส์หรือกระจก Test Chart สกปรก', solution: 'ใช้กระดาษเช็ดเลนส์ชุบแอลกอฮอล์ทำความสะอาดหน้าเลนส์อย่างเบามือ' },
-            { id: 'm4', machine: 'ACT', model: 'Gamma', line: 'L3', process: 'Calibration', problem: 'กระบอกสูบลมไม่ทำงาน', cause: 'วาล์วลมรั่ว หรือ ท่อลมพับ', solution: '1. เปลี่ยนซีลยางที่วาล์วลม\n2. จัดระเบียบท่อลมใหม่ไม่ให้หักงอ' },
-            { id: 'm5', machine: 'I-SCREW', model: 'Beta', line: 'L2', process: 'Assembly', problem: 'ขันน็อตปีนเกลียว (Torque Error)', cause: 'ตำแหน่งหัวไขควง (Z-Axis) เบี้ยว', solution: 'เข้าโหมด Manual และทำ Teaching ตำแหน่งแกน Z ใหม่ให้ตรงกับรูชิ้นงาน' }
-        ];
-
-        // 1. ฟังก์ชันดึงข้อมูลจาก Backend (API GET)
+        // --- 1. โหลดข้อมูลทั้งหมดทันทีเมื่อเปิดเว็บ ---
         async function fetchGuidesFromAPI() {
             try {
-                addLog("System: Connecting to Backend API...");
+                addLog("Connecting to Cloud Database...");
                 const response = await fetch(`${BACKEND_URL}/api/guides`);
                 if (response.ok) {
                     allData = await response.json();
-                    if(allData.length === 0) allData = mockData; // ถ้า DB ว่างให้แสดง Mock ก่อน
-                    addLog(`Success: Loaded ${allData.length} records from Database.`, "success");
-                } else {
-                    throw new Error("API returned status " + response.status);
-                }
-            } catch (error) {
-                addLog("Warning: Cannot connect to API. Loading Mock Data.", "error");
-                allData = mockData; // ถ้าต่อไม่ได้ ให้ใช้ข้อมูลจำลอง
+                    machineNames = [...new Set(allData.map(d => d.machine.toUpperCase()))];
+                    addLog(`Successfully loaded ${allData.length} master records.`);
+                    renderTable();
+                    updateAnalytics();
+                } else { throw new Error("API Status: " + response.status); }
+            } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
+        }
+
+        // --- 2. ฟังก์ชัน Intel Search (ตามแบบร่างเป๊ะๆ) ---
+        function handleSmartSuggest(val) {
+            const list = document.getElementById('suggestion-list');
+            list.innerHTML = '';
+            if (!val) { 
+                list.classList.add('hidden'); 
+                resetIntelSearchUI();
+                return; 
             }
-            renderAll();
+
+            const filtered = machineNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
+            if (filtered.length > 0) {
+                filtered.forEach(name => {
+                    const li = document.createElement('li');
+                    li.className = 'p-4 hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer font-bold text-blue-600 dark:text-blue-400 transition';
+                    li.textContent = name;
+                    li.onclick = () => selectMachine(name);
+                    list.appendChild(li);
+                });
+                list.classList.remove('hidden');
+            } else { list.classList.add('hidden'); }
         }
 
-        // Init
-        window.onload = () => {
-            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('th-TH'); }, 1000);
-            fetchGuidesFromAPI(); // โหลดข้อมูลทันทีเมื่อเปิดเว็บ
-        };
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        function selectMachine(name) {
+            document.getElementById('is-search').value = name;
+            document.getElementById('suggestion-list').classList.add('hidden');
             
-            const btnMap = {'overview':0, 'view-mode':1, 'add-mode':2, 'database':3};
-            document.querySelectorAll('.sidebar-btn')[btnMap[tabId]].classList.add('active');
+            document.getElementById('is-dropdown-section').classList.remove('hidden');
+            document.getElementById('is-manual-section').classList.remove('hidden');
+            document.getElementById('is-solution-section').classList.add('hidden');
+            document.getElementById('is-problem-manual').value = '';
             
-            if(tabId === 'view-mode') updateVM_Machines();
-            if(window.innerWidth < 1024) toggleSidebar();
+            const dropdown = document.getElementById('is-problem-dropdown');
+            dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
+            
+            const issues = allData.filter(d => d.machine.toUpperCase() === name.toUpperCase())
+                                  .map(d => d.problem)
+                                  .filter((v, i, a) => a.indexOf(v) === i && v && v !== "-" && v !== "General Error");
+
+            if (issues.length > 0) {
+                issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
+            } else {
+                dropdown.innerHTML += '<option disabled>ไม่พบประวัติปัญหาสำหรับเครื่องนี้</option>';
+            }
+            addLog(`Machine Linked: ${name}`);
         }
 
-        function toggleSidebar() {
-            document.getElementById('mobile-sidebar').classList.toggle('sidebar-open');
-            document.getElementById('sidebar-overlay').classList.toggle('hidden');
+        function handleProblemSelect(val) {
+            if (!val) return;
+            document.getElementById('is-problem-manual').value = val;
+            searchSolution(val);
         }
 
-        function renderAll() {
-            renderOverview();
-            renderTable();
-            updateVM_Machines();
-        }
+        function searchSolution(issueText) {
+            const mId = document.getElementById('is-search').value;
+            const solSec = document.getElementById('is-solution-section');
+            if (!mId || issueText.length < 2) { solSec.classList.add('hidden'); return; }
 
-        // ================= OVERVIEW =================
-        function renderOverview() {
-            const grid = document.getElementById('overview-grid');
-            const grouped = {};
-            allData.forEach(item => {
-                if (!grouped[item.machine]) grouped[item.machine] = [];
-                grouped[item.machine].push({ problem: item.problem, id: item.id });
-            });
-            grid.innerHTML = Object.keys(grouped).map(m => `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition">
-                    <div class="flex items-center gap-3 mb-3 border-b dark:border-slate-700 pb-3">
-                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 text-blue-600 rounded-xl flex items-center justify-center font-bold text-lg">⚙️</div>
-                        <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Machine</p><h3 class="font-bold text-blue-700 dark:text-blue-400 leading-tight">${m}</h3></div>
-                    </div>
-                    <ul class="text-xs space-y-2 list-none">
-                        ${grouped[m].slice(0,5).map(p => `
-                            <li onclick="openQuickSolution('${p.id}')" class="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 hover:translate-x-1 transition flex items-start gap-2 text-slate-600 dark:text-slate-300">
-                                <span class="text-blue-400 mt-0.5">•</span>
-                                <span class="truncate" title="${p.problem}">${p.problem}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `).join('');
-        }
+            // ค้นหาคำตอบจาก allData ที่โหลดมาแล้ว
+            const match = allData.find(d => 
+                d.machine.toUpperCase() === mId.toUpperCase() && 
+                (d.problem.toLowerCase().includes(issueText.toLowerCase()) || issueText.toLowerCase().includes(d.problem.toLowerCase()))
+            );
+            
+            // กรณีหาไม่เจอเป๊ะๆ ให้เอาข้อมูลวิธีแก้พื้นฐานของเครื่องนั้นมาโชว์
+            const fallbackMatch = allData.find(d => d.machine.toUpperCase() === mId.toUpperCase() && d.solution && d.solution !== "-");
 
-        function openQuickSolution(id) {
-            const row = allData.find(d => String(d.id) === String(id));
-            if(row) {
-                document.getElementById('qs-machine').innerText = row.machine;
-                document.getElementById('qs-problem').innerText = row.problem;
-                document.getElementById('qs-cause').innerText = row.cause;
-                document.getElementById('qs-solution').innerText = row.solution;
-                document.getElementById('quick-solution-modal').classList.add('active');
+            if (match) {
+                solSec.classList.remove('hidden');
+                document.getElementById('is-solution-text').innerText = match.solution || "ไม่มีระบุ";
+                document.getElementById('is-cause-text').innerText = match.cause || "ไม่มีระบุ";
+                addLog("Perfect match solution found.");
+            } else if (fallbackMatch && issueText.length > 5) {
+                solSec.classList.remove('hidden');
+                document.getElementById('is-solution-text').innerText = fallbackMatch.solution || "ไม่มีระบุ";
+                document.getElementById('is-cause-text').innerText = fallbackMatch.cause || "ไม่มีระบุ";
+                addLog("General solution suggested.");
+            } else {
+                solSec.classList.add('hidden');
             }
         }
-        function closeQuickSolution() { document.getElementById('quick-solution-modal').classList.remove('active'); }
 
-        // ================= VIEW MODE =================
-        function updateVM_Machines() {
-            const searchInput = document.getElementById('vm-search').value.toLowerCase();
-            const sel = document.getElementById('vm-machine');
-            let machines = [...new Set(allData.map(d => d.machine))];
-            if(searchInput) { machines = machines.filter(m => m.toLowerCase().includes(searchInput)); }
-            sel.innerHTML = '<option value="">-- Machine --</option>' + machines.map(m => `<option value="${m}">${m}</option>`).join('');
-            updateVM_Problems();
-        }
-        function updateVM_Problems() {
-            const m = document.getElementById('vm-machine').value;
-            const sel = document.getElementById('vm-problem');
-            const problems = [...new Set(allData.filter(d => d.machine === m).map(d => d.problem))];
-            sel.innerHTML = '<option value="">-- Problem --</option>' + problems.map(p => `<option value="${p}">${p}</option>`).join('');
-            updateVM_Causes();
-        }
-        function updateVM_Causes() {
-            const m = document.getElementById('vm-machine').value;
-            const p = document.getElementById('vm-problem').value;
-            const sel = document.getElementById('vm-cause');
-            const causes = [...new Set(allData.filter(d => d.machine===m && d.problem===p).map(d => d.cause))];
-            sel.innerHTML = '<option value="">-- Cause --</option>' + causes.map(c => `<option value="${c}">${c}</option>`).join('');
-            displayVM_Solution();
-        }
-        function displayVM_Solution() {
-            const m = document.getElementById('vm-machine').value;
-            const p = document.getElementById('vm-problem').value;
-            const c = document.getElementById('vm-cause').value;
-            const solTxt = document.getElementById('vm-sol');
-            if(!c) { solTxt.innerText = "กรุณาเลือกสาเหตุเพื่อดูคำตอบ..."; return; }
-            const row = allData.find(d => d.machine===m && d.problem===p && d.cause===c);
-            solTxt.innerText = row ? row.solution : "ไม่พบข้อมูล";
+        function resetIntelSearchUI() {
+            document.getElementById('is-dropdown-section').classList.add('hidden');
+            document.getElementById('is-manual-section').classList.add('hidden');
+            document.getElementById('is-solution-section').classList.add('hidden');
+            document.getElementById('is-problem-manual').value = '';
         }
 
-        // ================= AUTH =================
-        function openLoginModal() {
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
-            document.getElementById('login-modal').classList.add('active');
-        }
-        function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
-        function verifyLogin() {
-            if (document.getElementById('login-user').value === "5022825392" && document.getElementById('login-pass').value === "Phonlawat_25392") {
-                isAdmin = true;
-                closeLoginModal();
-                updateAdminUI();
-                addLog("Admin Logged In successfully.");
-            } else { alert("❌ รหัสผ่านไม่ถูกต้อง!"); }
-        }
-        function adminLogout() { isAdmin = false; updateAdminUI(); addLog("Admin Logged out."); }
-        function updateAdminUI() {
-            document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
-            document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
-            document.getElementById('th-action').classList.toggle('hidden', !isAdmin);
-            renderTable();
-        }
-
-        // ================= DATABASE (API CRUD) =================
+        // --- 3. ระบบ Database / Admin ---
         function renderTable() {
             const tbody = document.getElementById('db-body');
             tbody.innerHTML = allData.map(row => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b dark:border-slate-800 transition">
-                    <td class="p-4 font-bold text-blue-600 whitespace-nowrap">${row.machine}</td>
-                    <td class="p-4 text-xs text-slate-500 whitespace-nowrap">${row.model} / ${row.line} / ${row.process}</td>
-                    <td class="p-4 text-sm">${row.problem}</td>
-                    <td class="p-4 text-emerald-600 text-xs font-medium">${row.cause}</td>
+                <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition">
+                    <td class="p-4 font-bold text-blue-600 uppercase whitespace-nowrap">${row.machine}</td>
+                    <td class="p-4 text-[10px] text-slate-500 whitespace-nowrap font-mono">${row.model}<br>${row.line} | ${row.process}</td>
+                    <td class="p-4 text-sm font-medium">${row.problem}</td>
+                    <td class="p-4 text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">${row.solution}</td>
                     ${isAdmin ? `
-                        <td class="p-4 align-middle">
+                        <td class="p-4 align-middle text-center">
                             <div class="flex justify-center gap-2">
-                                <button onclick="openEditModal('${row.id}')" class="p-2 bg-blue-100 text-blue-600 rounded-lg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-                                <button onclick="deleteFromAPI('${row.id}')" class="p-2 bg-red-100 text-red-600 rounded-lg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                <button onclick="openEditModal('${row.id}')" class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+                                <button onclick="deleteFromAPI('${row.id}')" class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                             </div>
                         </td>
                     ` : ''}
@@ -436,7 +415,6 @@
             `).join('');
         }
 
-        // 2. API: POST (Add Record)
         async function addDataToAPI() {
             const payload = {
                 machine: document.getElementById('add-m').value,
@@ -448,36 +426,27 @@
                 solution: document.getElementById('add-s').value
             };
             try {
-                addLog("Sending new record to API...");
+                addLog("Sending payload...");
                 const response = await fetch(`${BACKEND_URL}/api/guides`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
                 if(response.ok) {
                     document.getElementById('add-form').reset();
+                    addLog("Record saved to Database.", "success");
                     alert("✅ บันทึกข้อมูลลง Database สำเร็จ!");
-                    fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
-                } else {
-                    alert("❌ เชื่อมต่อ Database ไม่สำเร็จ โปรดตรวจสอบ Python Backend");
-                }
-            } catch (error) { 
-                addLog("Failed to add data (Backend Offline)", "error");
-                alert("❌ Backend ออฟไลน์อยู่ กรุณาเปิด Python app.py");
-            }
+                    fetchGuidesFromAPI();
+                } else { alert("❌ Error saving record."); }
+            } catch (e) { addLog("API offline.", "error"); }
         }
 
-        // 3. API: DELETE (Delete Record)
         async function deleteFromAPI(id) {
-            if(confirm("⚠️ ยืนยันการลบข้อมูลนี้ออกจากระบบ?")) {
+            if(confirm("⚠️ ลบข้อมูลนี้ถาวร?")) {
                 try {
-                    addLog(`Deleting record: ${id}...`);
                     const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, { method: 'DELETE' });
-                    if(response.ok) {
-                        fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
-                    } else { alert("❌ ลบไม่สำเร็จ"); }
-                } catch (error) { addLog("Failed to delete", "error"); }
+                    if(response.ok) fetchGuidesFromAPI();
+                } catch (e) { addLog("Delete failed.", "error"); }
             }
         }
 
@@ -496,7 +465,6 @@
         }
         function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
 
-        // 4. API: PUT (Update Record)
         async function saveEditToAPI() {
             const id = document.getElementById('edit-id').value;
             const payload = {
@@ -509,29 +477,113 @@
                 solution: document.getElementById('em-s').value
             };
             try {
-                addLog(`Updating record: ${id}...`);
                 const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                
                 if(response.ok) {
                     closeEditModal();
-                    fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
-                } else { alert("❌ อัปเดตไม่สำเร็จ"); }
-            } catch (error) { addLog("Failed to update", "error"); }
+                    fetchGuidesFromAPI();
+                    addLog("Record updated.", "success");
+                }
+            } catch (e) { addLog("Update failed.", "error"); }
         }
 
-        // ระบบเขียน Log ด้านล่างจอ
-        function addLog(msg, type = 'info') { 
-            const p = document.createElement('p');
-            p.className = type === 'error' ? 'text-red-500' : 'text-blue-600 dark:text-blue-400';
-            p.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            const logContainer = document.getElementById('log-msg').parentNode;
-            logContainer.innerHTML = '';
-            logContainer.appendChild(p);
+        // --- 4. ระบบสถิติ กราฟที่สวยงาม ---
+        function updateAnalytics() {
+            if (allData.length === 0) return;
+            document.getElementById('stat-total').innerText = allData.length;
+
+            const mFreq = {};
+            allData.forEach(d => {
+                const m = d.machine.toUpperCase();
+                mFreq[m] = (mFreq[m] || 0) + 1;
+            });
+
+            const sorted = Object.entries(mFreq).sort((a, b) => b[1] - a[1]);
+            document.getElementById('stat-top-machine').innerText = sorted[0][0];
+            document.getElementById('stat-top-count').innerText = `Frequency: ${sorted[0][1]}`;
+
+            // เอาแค่ Top 10 มาวาดกราฟ
+            const top10 = sorted.slice(0, 10);
+            const labels = top10.map(x => x[0]);
+            const counts = top10.map(x => x[1]);
+
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'จำนวนปัญหาที่พบ', data: counts, backgroundColor: '#3b82f6', borderRadius: 8 }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
         }
+
+        // --- 5. UI Helpers ---
+        function openLoginModal() { document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; document.getElementById('login-modal').classList.add('active'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
+        function verifyLogin() {
+            if (document.getElementById('login-user').value === "5022825392" && document.getElementById('login-pass').value === "Phonlawat_25392") {
+                isAdmin = true; closeLoginModal(); updateAdminUI(); addLog("Admin mode activated.", "success");
+            } else { alert("❌ รหัสผ่านไม่ถูกต้อง!"); }
+        }
+        function adminLogout() { isAdmin = false; updateAdminUI(); addLog("Admin logged out."); }
+        function updateAdminUI() {
+            document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
+            document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
+            document.getElementById('th-action').classList.toggle('hidden', !isAdmin);
+            renderTable();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            const btnMap = {'overview':0, 'intel-search':1, 'add-record':2, 'database':3, 'statistics':4};
+            document.querySelectorAll('.sidebar-btn')[btnMap[tabId]].classList.add('active');
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('mobile-sidebar').classList.toggle('sidebar-open');
+            document.getElementById('sidebar-overlay').classList.toggle('hidden');
+        }
+
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+
+        function addLog(msg, type = 'info') { 
+            document.getElementById('log-msg').innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            document.getElementById('log-msg').className = type === 'error' ? 'text-xs font-mono text-red-500 font-bold w-full' : 'text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold w-full truncate';
+        }
+
+        function generateCalendar() {
+            const now = new Date(); const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+            const container = document.getElementById('calendar-days');
+            document.getElementById('cal-month').innerText = now.toLocaleDateString('en-GB', {month:'short', year:'numeric'});
+            container.innerHTML = '';
+            for(let i=0; i<firstDay; i++) container.innerHTML += '<div></div>';
+            for(let d=1; d<=daysInMonth; d++) { container.innerHTML += `<div><span class="${d === now.getDate() ? 'today' : ''}">${d}</span></div>`; }
+        }
+
+        window.onload = () => {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', {hour12: false});
+            }, 1000);
+            generateCalendar();
+            fetchGuidesFromAPI(); // เริ่มโหลดข้อมูลจาก Render ทันที
+        };
     </script>
 </body>
 </html>
