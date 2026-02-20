@@ -102,17 +102,23 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Select Machine</label>
-                                <select id="vm-machine" class="wf-input cursor-pointer" onchange="updateVM_Problems()"><option value="">-- รอระบุ --</option></select>
+                                <select id="vm-machine" class="wf-input cursor-pointer" onchange="updateVM_Problems()">
+                                    <option value="">-- รอระบุ --</option>
+                                </select>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Problem (ปัญหา)</label>
-                                <select id="vm-problem" class="wf-input cursor-pointer" onchange="updateVM_Causes()"><option value="">-- รอเลือกเครื่องจักร --</option></select>
+                                <select id="vm-problem" class="wf-input cursor-pointer" onchange="updateVM_Causes()">
+                                    <option value="">-- รอเลือกเครื่องจักร --</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Cause (สาเหตุ)</label>
-                                <select id="vm-cause" class="wf-input cursor-pointer" onchange="displayVM_Solution()"><option value="">-- รอเลือกปัญหา --</option></select>
+                                <select id="vm-cause" class="wf-input cursor-pointer" onchange="displayVM_Solution()">
+                                    <option value="">-- รอเลือกปัญหา --</option>
+                                </select>
                             </div>
                         </div>
                         <div class="flex-1 flex flex-col gap-4">
@@ -122,6 +128,9 @@
                                     <a id="vm-link" href="#" target="_blank" class="hidden text-xs bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full font-bold hover:bg-emerald-200 text-center w-full sm:w-auto transition shadow-sm">🔗 เปิดคู่มือเครื่อง</a>
                                 </div>
                                 <p id="vm-sol" class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">กรุณาเลือกสาเหตุเพื่อดูคำตอบ...</p>
+                            </div>
+                            <div class="flex-1 bg-slate-100 dark:bg-slate-900/50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 p-4 min-h-[150px]">
+                                <p id="vm-no-img" class="text-slate-400 font-bold text-sm">ไม่มีรูปภาพประกอบ</p>
                             </div>
                         </div>
                     </div>
@@ -140,7 +149,7 @@
                             <div class="mb-4"><label class="font-bold text-sm">Problem</label><input type="text" id="add-p" class="wf-input" required></div>
                             <div class="mb-4"><label class="font-bold text-sm">Cause</label><input type="text" id="add-c" class="wf-input" required></div>
                             <div class="mb-4"><label class="font-bold text-sm">Solution</label><textarea id="add-s" class="wf-input h-24" required></textarea></div>
-                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg transition hover:-translate-y-1">💾 SAVE RECORD TO DATABASE</button>
+                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg transition hover:-translate-y-1 cursor-pointer">💾 SAVE RECORD TO DATABASE</button>
                         </form>
                     </div>
                 </div>
@@ -149,11 +158,11 @@
                     <div class="glass-panel rounded-2xl p-6 flex flex-col min-h-full shadow-xl">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-bold text-slate-700 dark:text-white uppercase tracking-tight">Database Master Records</h2>
-                            <button id="admin-login-btn" onclick="openLoginModal()" class="bg-slate-800 dark:bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg">
+                            <button id="admin-login-btn" onclick="openLoginModal()" class="bg-slate-800 dark:bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                 EDIT MODE
                             </button>
-                            <button id="admin-logout-btn" onclick="adminLogout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg">
+                            <button id="admin-logout-btn" onclick="adminLogout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
                                 🔒 EXIT EDIT MODE
                             </button>
                         </div>
@@ -184,7 +193,7 @@
 
     <div id="quick-solution-modal" class="modal">
         <div class="bg-white dark:bg-slate-900 w-full max-w-lg p-6 rounded-2xl shadow-2xl relative">
-            <button onclick="closeQuickSolution()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <button onclick="closeQuickSolution()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <div class="flex items-center gap-3 mb-4 border-b pb-3 dark:border-slate-700">
@@ -211,11 +220,11 @@
             <div class="text-3xl mb-4">🔐</div>
             <h3 class="font-bold text-lg mb-2">Admin Authentication</h3>
             <p class="text-xs text-slate-400 mb-6">กรุณากรอกรหัสผ่านเพื่อแก้ไข Database</p>
-            <input type="text" id="login-user" class="wf-input" placeholder="Username (admin)">
-            <input type="password" id="login-pass" class="wf-input" placeholder="Password (1234)">
+            <input type="text" id="login-user" class="wf-input" placeholder="Username">
+            <input type="password" id="login-pass" class="wf-input" placeholder="Password">
             <div class="flex gap-2">
-                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="verifyLogin()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">Login</button>
+                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer">Cancel</button>
+                <button onclick="verifyLogin()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md cursor-pointer">Login</button>
             </div>
         </div>
     </div>
@@ -239,25 +248,28 @@
                 <div class="mb-4"><label class="text-xs font-bold text-slate-400 uppercase">Solution</label><textarea id="em-s" class="wf-input h-32"></textarea></div>
             </div>
             <div class="flex gap-4 mt-6 pt-6 border-t dark:border-slate-800">
-                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="saveEditToAPI()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Update Database</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer">Cancel</button>
+                <button onclick="saveEditToAPI()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition cursor-pointer">Update Database</button>
             </div>
         </div>
     </div>
 
     <script>
-        // กำหนด URL ของ Backend (FastAPI ของคุณรันอยู่ที่พอร์ต 8000)
+        // ------------------------------------------------------------------
+        // การตั้งค่า Backend URL (ต้องเปิด Python app.py ทิ้งไว้เสมอเพื่อให้เซฟได้)
+        // ------------------------------------------------------------------
         const BACKEND_URL = 'http://127.0.0.1:8000';
         
         let allData = []; 
         let isAdmin = false; 
 
-        // Mock Data เผื่อกรณี Backend ปิดอยู่ (ระบบจะได้แสดงผลให้ดูได้)
+        // Mock Data เผื่อกรณีลืมเปิด Backend หรือเชื่อมต่อไม่สำเร็จ 
         const mockData = [
             { id: 'm1', machine: 'F_NO', model: 'Alpha', line: 'L1', process: 'Assembly', problem: 'โปรแกรม Azusa ไม่อัปโหลด', cause: 'สาย LAN หลวม หรือ IP ชนกัน', solution: '1. ตรวจสอบและขยับสาย LAN\n2. เช็ค IP Address ในการตั้งค่า Windows' },
             { id: 'm2', machine: 'FLARE', model: 'Alpha', line: 'L1', process: 'Inspection', problem: 'ไฟเตือนสีแดงกระพริบ', cause: 'เซ็นเซอร์จับชิ้นงานหลวม', solution: 'ตรวจสอบสายเซ็นเซอร์บริเวณจุดรับชิ้นงานและขันน็อตให้แน่น' },
             { id: 'm3', machine: 'MTF', model: 'Beta', line: 'L2', process: 'Testing', problem: 'อ่านค่า Resolution ไม่ได้', cause: 'เลนส์หรือกระจก Test Chart สกปรก', solution: 'ใช้กระดาษเช็ดเลนส์ชุบแอลกอฮอล์ทำความสะอาดหน้าเลนส์อย่างเบามือ' },
-            { id: 'm4', machine: 'ACT', model: 'Gamma', line: 'L3', process: 'Calibration', problem: 'กระบอกสูบลมไม่ทำงาน', cause: 'วาล์วลมรั่ว หรือ ท่อลมพับ', solution: '1. เปลี่ยนซีลยางที่วาล์วลม\n2. จัดระเบียบท่อลมใหม่ไม่ให้หักงอ' }
+            { id: 'm4', machine: 'ACT', model: 'Gamma', line: 'L3', process: 'Calibration', problem: 'กระบอกสูบลมไม่ทำงาน', cause: 'วาล์วลมรั่ว หรือ ท่อลมพับ', solution: '1. เปลี่ยนซีลยางที่วาล์วลม\n2. จัดระเบียบท่อลมใหม่ไม่ให้หักงอ' },
+            { id: 'm5', machine: 'I-SCREW', model: 'Beta', line: 'L2', process: 'Assembly', problem: 'ขันน็อตปีนเกลียว (Torque Error)', cause: 'ตำแหน่งหัวไขควง (Z-Axis) เบี้ยว', solution: 'เข้าโหมด Manual และทำ Teaching ตำแหน่งแกน Z ใหม่ให้ตรงกับรูชิ้นงาน' }
         ];
 
         // 1. ฟังก์ชันดึงข้อมูลจาก Backend (API GET)
@@ -267,6 +279,7 @@
                 const response = await fetch(`${BACKEND_URL}/api/guides`);
                 if (response.ok) {
                     allData = await response.json();
+                    if(allData.length === 0) allData = mockData; // ถ้า DB ว่างให้แสดง Mock ก่อน
                     addLog(`Success: Loaded ${allData.length} records from Database.`, "success");
                 } else {
                     throw new Error("API returned status " + response.status);
@@ -387,14 +400,14 @@
         }
         function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
         function verifyLogin() {
-            if (document.getElementById('login-user').value === "admin" && document.getElementById('login-pass').value === "1234") {
+            if (document.getElementById('login-user').value === "5022825392" && document.getElementById('login-pass').value === "Phonlawat_25392") {
                 isAdmin = true;
                 closeLoginModal();
                 updateAdminUI();
-                addLog("Admin Logged In");
+                addLog("Admin Logged In successfully.");
             } else { alert("❌ รหัสผ่านไม่ถูกต้อง!"); }
         }
-        function adminLogout() { isAdmin = false; updateAdminUI(); }
+        function adminLogout() { isAdmin = false; updateAdminUI(); addLog("Admin Logged out."); }
         function updateAdminUI() {
             document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
             document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
@@ -423,7 +436,7 @@
             `).join('');
         }
 
-        // 2. API: POST (Add)
+        // 2. API: POST (Add Record)
         async function addDataToAPI() {
             const payload = {
                 machine: document.getElementById('add-m').value,
@@ -436,24 +449,34 @@
             };
             try {
                 addLog("Sending new record to API...");
-                await fetch(`${BACKEND_URL}/api/guides`, {
+                const response = await fetch(`${BACKEND_URL}/api/guides`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                document.getElementById('add-form').reset();
-                alert("✅ บันทึกข้อมูลลง Database สำเร็จ!");
-                fetchGuidesFromAPI(); // รีโหลดข้อมูล
-            } catch (error) { addLog("Failed to add data", "error"); }
+                
+                if(response.ok) {
+                    document.getElementById('add-form').reset();
+                    alert("✅ บันทึกข้อมูลลง Database สำเร็จ!");
+                    fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
+                } else {
+                    alert("❌ เชื่อมต่อ Database ไม่สำเร็จ โปรดตรวจสอบ Python Backend");
+                }
+            } catch (error) { 
+                addLog("Failed to add data (Backend Offline)", "error");
+                alert("❌ Backend ออฟไลน์อยู่ กรุณาเปิด Python app.py");
+            }
         }
 
-        // 3. API: DELETE
+        // 3. API: DELETE (Delete Record)
         async function deleteFromAPI(id) {
             if(confirm("⚠️ ยืนยันการลบข้อมูลนี้ออกจากระบบ?")) {
                 try {
                     addLog(`Deleting record: ${id}...`);
-                    await fetch(`${BACKEND_URL}/api/guides/${id}`, { method: 'DELETE' });
-                    fetchGuidesFromAPI(); // รีโหลดข้อมูล
+                    const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, { method: 'DELETE' });
+                    if(response.ok) {
+                        fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
+                    } else { alert("❌ ลบไม่สำเร็จ"); }
                 } catch (error) { addLog("Failed to delete", "error"); }
             }
         }
@@ -473,7 +496,7 @@
         }
         function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
 
-        // 4. API: PUT (Update)
+        // 4. API: PUT (Update Record)
         async function saveEditToAPI() {
             const id = document.getElementById('edit-id').value;
             const payload = {
@@ -487,16 +510,20 @@
             };
             try {
                 addLog(`Updating record: ${id}...`);
-                await fetch(`${BACKEND_URL}/api/guides/${id}`, {
+                const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                closeEditModal();
-                fetchGuidesFromAPI(); // รีโหลดข้อมูล
+                
+                if(response.ok) {
+                    closeEditModal();
+                    fetchGuidesFromAPI(); // รีโหลดข้อมูลจาก DB ใหม่
+                } else { alert("❌ อัปเดตไม่สำเร็จ"); }
             } catch (error) { addLog("Failed to update", "error"); }
         }
 
+        // ระบบเขียน Log ด้านล่างจอ
         function addLog(msg, type = 'info') { 
             const p = document.createElement('p');
             p.className = type === 'error' ? 'text-red-500' : 'text-blue-600 dark:text-blue-400';
