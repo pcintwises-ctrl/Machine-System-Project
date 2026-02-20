@@ -103,14 +103,17 @@
         <main class="flex-1 p-4 lg:p-8 flex flex-col h-full overflow-hidden relative w-full">
             <div class="flex-1 overflow-y-auto custom-scroll pb-20">
                 
-                <div id="overview" class="tab-content active">
-                    <div class="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-700">
-                        <div class="relative w-full bg-white dark:bg-slate-900 p-3 rounded-[2rem] shadow-2xl border dark:border-slate-800 overflow-hidden">
-                            <img src="sony_logo.jpg" class="w-full h-80 object-cover rounded-[1.5rem]" alt="Sony Visual">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8 pointer-events-none">
-                                <h2 class="text-3xl font-black text-white uppercase italic tracking-wider">Ready to diagnose</h2>
-                                <p class="text-blue-200 font-medium">Select Intel Search to find solutions.</p>
+                <div id="overview" class="tab-content active h-full">
+                    <div class="max-w-6xl mx-auto glass-panel rounded-3xl p-8 shadow-2xl min-h-full">
+                        <div class="flex justify-between items-end mb-6 border-b dark:border-slate-700 pb-4">
+                            <div>
+                                <h2 class="text-2xl font-black text-blue-600 uppercase">📊 System Overview</h2>
+                                <p class="text-sm text-slate-500 mt-1">สรุปข้อมูลเครื่องจักรและปัญหาที่เคยพบจากฐานข้อมูล</p>
                             </div>
+                            <span class="text-xs font-bold bg-blue-100 text-blue-600 px-3 py-1 rounded-full" id="overview-count">0 Machines</span>
+                        </div>
+                        <div id="overview-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <p class="text-slate-400 text-sm animate-pulse">กำลังโหลดข้อมูล...</p>
                         </div>
                     </div>
                 </div>
@@ -128,14 +131,14 @@
                             <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-2xl hidden z-50 max-h-60 overflow-y-auto divide-y dark:divide-slate-700"></ul>
                         </div>
 
-                        <div id="is-dropdown-section" class="hidden animate-in fade-in slide-in-from-top-2 mb-6">
+                        <div id="is-dropdown-section" class="mb-6">
                             <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Dropdown ปัญหาที่ตรงกับชื่อ Machine ที่ผู้ใช้เลือก</label>
                             <select id="is-problem-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-4" onchange="handleProblemSelect(this.value)">
-                                <option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>
+                                <option value="">-- โปรดระบุชื่อเครื่องจักรเพื่อดูประวัติปัญหา --</option>
                             </select>
                         </div>
 
-                        <div id="is-manual-section" class="hidden animate-in fade-in mb-6">
+                        <div id="is-manual-section" class="mb-6">
                             <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest ml-1">ป้อนปัญหาได้โดยไม่ต้องเลือกจาก dropdown ก็ได้</label>
                             <textarea id="is-problem-manual" class="wf-input h-28 resize-none" placeholder="อธิบายอาการเสียที่พบ..." oninput="searchSolution(this.value)"></textarea>
                         </div>
@@ -299,13 +302,73 @@
                     allData = await response.json();
                     machineNames = [...new Set(allData.map(d => d.machine.toUpperCase()))];
                     addLog(`Successfully loaded ${allData.length} master records.`);
+                    
+                    renderOverview(); // โหลดหน้าจอ Overview ใหม่
                     renderTable();
                     updateAnalytics();
                 } else { throw new Error("API Status: " + response.status); }
             } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
         }
 
-        // --- 2. ฟังก์ชัน Intel Search (ตามแบบร่างเป๊ะๆ) ---
+        // --- 1.1 วาดหน้าจอ Overview ---
+        function renderOverview() {
+            const grid = document.getElementById('overview-grid');
+            const countLabel = document.getElementById('overview-count');
+            
+            // จัดกลุ่มข้อมูลปัญหาตามชื่อเครื่องจักร
+            const grouped = {};
+            allData.forEach(item => {
+                const m = item.machine.toUpperCase();
+                if (!grouped[m]) grouped[m] = new Set();
+                if (item.problem && item.problem !== "-" && item.problem !== "General Error") {
+                    grouped[m].add(item.problem);
+                }
+            });
+
+            const machineKeys = Object.keys(grouped).sort();
+            countLabel.innerText = `${machineKeys.length} MACHINES`;
+
+            if (machineKeys.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-10">ไม่มีข้อมูลเครื่องจักรในระบบ</p>';
+                return;
+            }
+
+            grid.innerHTML = machineKeys.map(m => {
+                const problems = Array.from(grouped[m]);
+                // ดึงปัญหามาโชว์ 5 อันแรก
+                const probHtml = problems.length > 0 
+                    ? problems.slice(0, 5).map(p => `<li class="text-sm text-slate-600 dark:text-slate-300 truncate font-medium">▪ ${p}</li>`).join('')
+                    : `<li class="text-sm text-slate-400 italic">No specific problems recorded</li>`;
+                // ถ้ามีมากกว่า 5 อันให้โชว์ตัวเลข
+                const moreHtml = problems.length > 5 ? `<li class="text-xs text-blue-500 font-bold mt-2 pt-2 border-t dark:border-slate-700">+${problems.length - 5} more issues...</li>` : '';
+                
+                return `
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition duration-300 group cursor-pointer" onclick="jumpToSearch('${m}')">
+                    <div class="flex items-center gap-4 mb-4 border-b dark:border-slate-700 pb-4">
+                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/50 text-blue-600 rounded-xl flex items-center justify-center font-black text-xl group-hover:scale-110 transition">⚙️</div>
+                        <div class="overflow-hidden">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Machine ID</p>
+                            <h3 class="font-black text-blue-700 dark:text-blue-400 text-xl truncate">${m}</h3>
+                        </div>
+                    </div>
+                    <ul class="space-y-1.5">
+                        ${probHtml}
+                        ${moreHtml}
+                    </ul>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // คีย์ลัด: คลิกการ์ดในหน้าแรกแล้วเด้งไปค้นหาเครื่องนั้นเลย
+        function jumpToSearch(machineName) {
+            switchTab('intel-search');
+            document.getElementById('is-search').value = machineName;
+            selectMachine(machineName);
+        }
+
+
+        // --- 2. ฟังก์ชัน Intel Search ---
         function handleSmartSuggest(val) {
             const list = document.getElementById('suggestion-list');
             list.innerHTML = '';
@@ -332,8 +395,7 @@
             document.getElementById('is-search').value = name;
             document.getElementById('suggestion-list').classList.add('hidden');
             
-            document.getElementById('is-dropdown-section').classList.remove('hidden');
-            document.getElementById('is-manual-section').classList.remove('hidden');
+            // รีเซ็ตช่อง Solution
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             
@@ -363,13 +425,11 @@
             const solSec = document.getElementById('is-solution-section');
             if (!mId || issueText.length < 2) { solSec.classList.add('hidden'); return; }
 
-            // ค้นหาคำตอบจาก allData ที่โหลดมาแล้ว
             const match = allData.find(d => 
                 d.machine.toUpperCase() === mId.toUpperCase() && 
                 (d.problem.toLowerCase().includes(issueText.toLowerCase()) || issueText.toLowerCase().includes(d.problem.toLowerCase()))
             );
             
-            // กรณีหาไม่เจอเป๊ะๆ ให้เอาข้อมูลวิธีแก้พื้นฐานของเครื่องนั้นมาโชว์
             const fallbackMatch = allData.find(d => d.machine.toUpperCase() === mId.toUpperCase() && d.solution && d.solution !== "-");
 
             if (match) {
@@ -388,10 +448,9 @@
         }
 
         function resetIntelSearchUI() {
-            document.getElementById('is-dropdown-section').classList.add('hidden');
-            document.getElementById('is-manual-section').classList.add('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
+            document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- โปรดระบุชื่อเครื่องจักรเพื่อดูประวัติปัญหา --</option>';
         }
 
         // --- 3. ระบบ Database / Admin ---
@@ -505,7 +564,6 @@
             document.getElementById('stat-top-machine').innerText = sorted[0][0];
             document.getElementById('stat-top-count').innerText = `Frequency: ${sorted[0][1]}`;
 
-            // เอาแค่ Top 10 มาวาดกราฟ
             const top10 = sorted.slice(0, 10);
             const labels = top10.map(x => x[0]);
             const counts = top10.map(x => x[1]);
@@ -564,7 +622,7 @@
 
         function addLog(msg, type = 'info') { 
             document.getElementById('log-msg').innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            document.getElementById('log-msg').className = type === 'error' ? 'text-xs font-mono text-red-500 font-bold w-full' : 'text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold w-full truncate';
+            document.getElementById('log-msg').className = type === 'error' ? 'text-xs font-mono text-red-500 font-bold w-full truncate' : 'text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold w-full truncate';
         }
 
         function generateCalendar() {
@@ -582,7 +640,7 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', {hour12: false});
             }, 1000);
             generateCalendar();
-            fetchGuidesFromAPI(); // เริ่มโหลดข้อมูลจาก Render ทันที
+            fetchGuidesFromAPI(); // โหลดข้อมูลอัตโนมัติ
         };
     </script>
 </body>
