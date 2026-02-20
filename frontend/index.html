@@ -141,7 +141,7 @@
                             </div>
                         </div>
 
-                        <div id="is-problem-container" class="space-y-4 mb-6 hidden animate-in fade-in">
+                        <div id="is-problem-container" class="space-y-4 mb-6 animate-in fade-in">
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Select Historical Problem</label>
                                 <select id="is-problem-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-4" onchange="handleProblemSelect(this.value)">
@@ -341,7 +341,7 @@
     </div>
 
     <script>
-        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ---
+        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ของคุณ ---
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         
         let allData = []; 
@@ -362,7 +362,7 @@
                     renderOverview();
                     renderTable();
                     updateAnalytics();
-                    populateMachineDropdown(); // เติมข้อมูลใส่ Dropdown ค้นหาหลัก
+                    populateMachineDropdown();
                 } else { throw new Error("API Status: " + response.status); }
             } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
         }
@@ -446,7 +446,6 @@
         function handleSmartSuggest(val) {
             const list = document.getElementById('suggestion-list');
             list.innerHTML = '';
-            // ซิงค์ค่าให้ตรงกันระหว่างกล่องพิมพ์และกล่อง Dropdown
             document.getElementById('is-machine-dropdown').value = ""; 
             
             if (!val) { 
@@ -477,7 +476,6 @@
             document.getElementById('is-search').value = name;
             document.getElementById('suggestion-list').classList.add('hidden');
             
-            document.getElementById('is-problem-container').classList.remove('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             
@@ -532,9 +530,9 @@
         function resetIntelSearchUI() {
             document.getElementById('is-search').value = '';
             document.getElementById('is-machine-dropdown').value = '';
-            document.getElementById('is-problem-container').classList.add('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
+            document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- Select an issue from history --</option>';
         }
 
         // --- 3. ระบบ Database & Live Search ---
