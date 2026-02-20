@@ -6,6 +6,8 @@
     <title>MachineSync Pro | Advanced Maintenance Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script> tailwind.config = { darkMode: 'class' } </script>
     <style>
@@ -69,7 +71,7 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Navigation</p>
                 <button onclick="switchTab('overview')" class="sidebar-btn active">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                    Overview
+                    System Overview
                 </button>
                 <button onclick="switchTab('intel-search')" class="sidebar-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -77,15 +79,15 @@
                 </button>
                 <button onclick="switchTab('add-record')" class="sidebar-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                    เพิ่มปัญหาใหม่
+                    Add Record
                 </button>
                 <button onclick="switchTab('database')" class="sidebar-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                    Database
+                    Master Database
                 </button>
                 <button onclick="switchTab('statistics')" class="sidebar-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                    สถิติ
+                    Statistics & Export
                 </button>
             </div>
             
@@ -108,12 +110,12 @@
                         <div class="flex justify-between items-end mb-6 border-b dark:border-slate-700 pb-4">
                             <div>
                                 <h2 class="text-2xl font-black text-blue-600 uppercase">📊 System Overview</h2>
-                                <p class="text-sm text-slate-500 mt-1">สรุปข้อมูลเครื่องจักรและปัญหาที่เคยพบจากฐานข้อมูล</p>
+                                <p class="text-sm text-slate-500 mt-1">Summary of registered machines and their historical issues.</p>
                             </div>
                             <span class="text-xs font-bold bg-blue-100 text-blue-600 px-3 py-1 rounded-full" id="overview-count">0 Machines</span>
                         </div>
                         <div id="overview-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <p class="text-slate-400 text-sm animate-pulse">กำลังโหลดข้อมูล...</p>
+                            <p class="text-slate-400 text-sm animate-pulse">Synchronizing data...</p>
                         </div>
                     </div>
                 </div>
@@ -125,36 +127,45 @@
                             Intelligence Search
                         </h2>
                         
-                        <div class="relative mb-6">
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2 tracking-widest">Search Machine Name</label>
-                            <input type="text" id="is-search" class="wf-input text-lg font-bold uppercase py-4" placeholder="พิมพ์ชื่อเครื่องที่นี่ (เช่น MTF)..." oninput="handleSmartSuggest(this.value)">
-                            <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-2xl hidden z-50 max-h-60 overflow-y-auto divide-y dark:divide-slate-700"></ul>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="relative">
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest">Type Machine ID</label>
+                                <input type="text" id="is-search" class="wf-input font-bold uppercase py-4" placeholder="e.g., MTF..." oninput="handleSmartSuggest(this.value)">
+                                <ul id="suggestion-list" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-2xl hidden z-50 max-h-60 overflow-y-auto divide-y dark:divide-slate-700"></ul>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest">Or Select Machine</label>
+                                <select id="is-machine-dropdown" class="wf-input cursor-pointer font-bold uppercase py-4 text-slate-700 dark:text-slate-200" onchange="selectMachine(this.value)">
+                                    <option value="">-- Choose Machine --</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div id="is-dropdown-section" class="mb-6">
-                            <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Dropdown ปัญหาที่ตรงกับชื่อ Machine ที่ผู้ใช้เลือก</label>
-                            <select id="is-problem-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-4" onchange="handleProblemSelect(this.value)">
-                                <option value="">-- โปรดระบุชื่อเครื่องจักรเพื่อดูประวัติปัญหา --</option>
-                            </select>
-                        </div>
-
-                        <div id="is-manual-section" class="mb-6">
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest ml-1">ป้อนปัญหาได้โดยไม่ต้องเลือกจาก dropdown ก็ได้</label>
-                            <textarea id="is-problem-manual" class="wf-input h-28 resize-none" placeholder="อธิบายอาการเสียที่พบ..." oninput="searchSolution(this.value)"></textarea>
+                        <div id="is-problem-container" class="space-y-4 mb-6 hidden animate-in fade-in">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Select Historical Problem</label>
+                                <select id="is-problem-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-4" onchange="handleProblemSelect(this.value)">
+                                    <option value="">-- Select an issue from history --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest ml-1">Or Describe Symptoms</label>
+                                <textarea id="is-problem-manual" class="wf-input h-28 resize-none" placeholder="Type current symptoms here..." oninput="searchSolution(this.value)"></textarea>
+                            </div>
                         </div>
 
                         <div id="is-solution-section" class="hidden animate-in zoom-in duration-300">
                             <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/30 rounded-2xl p-6 shadow-lg">
                                 <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> ข้อความการแก้ปัญหา
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Solution Protocol
                                 </h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action (วิธีแก้):</p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action:</p>
                                         <p id="is-solution-text" class="text-lg font-semibold text-slate-800 dark:text-white mt-1 whitespace-pre-line"></p>
                                     </div>
                                     <div class="p-3 bg-white/50 dark:bg-slate-950/50 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause (สาเหตุ):</p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause:</p>
                                         <p id="is-cause-text" class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1"></p>
                                     </div>
                                 </div>
@@ -166,7 +177,7 @@
 
                 <div id="add-record" class="tab-content">
                     <div class="max-w-3xl mx-auto glass-panel rounded-3xl p-8 shadow-2xl">
-                        <h2 class="text-xl font-bold text-emerald-600 mb-6 border-b pb-2 dark:border-slate-700">➕ บันทึกปัญหาใหม่ (Add Record)</h2>
+                        <h2 class="text-xl font-bold text-emerald-600 mb-6 border-b pb-2 dark:border-slate-700">➕ Add New Record</h2>
                         <form id="add-form" onsubmit="event.preventDefault(); addDataToAPI();">
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div><label class="font-bold text-sm text-slate-500">Machine Name</label><input type="text" id="add-m" class="wf-input uppercase" required></div>
@@ -174,27 +185,32 @@
                                 <div><label class="font-bold text-sm text-slate-500">Line</label><input type="text" id="add-l" class="wf-input" required></div>
                                 <div><label class="font-bold text-sm text-slate-500">Process</label><input type="text" id="add-po" class="wf-input" required></div>
                             </div>
-                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Problem (ปัญหา)</label><input type="text" id="add-p" class="wf-input" required></div>
-                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Cause (สาเหตุ)</label><input type="text" id="add-c" class="wf-input" required></div>
-                            <div class="mb-6"><label class="font-bold text-sm text-slate-500">Solution (วิธีแก้)</label><textarea id="add-s" class="wf-input h-24 resize-none" required></textarea></div>
-                            <button type="submit" class="w-full bg-emerald-600 text-white font-black tracking-widest py-4 rounded-xl shadow-lg hover:bg-emerald-700 transition cursor-pointer">💾 SAVE TO DATABASE</button>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Problem</label><input type="text" id="add-p" class="wf-input" required></div>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Cause</label><input type="text" id="add-c" class="wf-input" required></div>
+                            <div class="mb-6"><label class="font-bold text-sm text-slate-500">Solution</label><textarea id="add-s" class="wf-input h-24 resize-none" required></textarea></div>
+                            <button type="submit" class="w-full bg-emerald-600 text-white font-black tracking-widest py-4 rounded-xl shadow-lg hover:bg-emerald-700 transition cursor-pointer">💾 COMMIT TO DATABASE</button>
                         </form>
                     </div>
                 </div>
 
                 <div id="database" class="tab-content h-full">
                     <div class="glass-panel rounded-3xl p-6 flex flex-col min-h-full shadow-2xl">
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                             <h2 class="text-xl font-black text-slate-800 dark:text-white uppercase">🗄️ Master Database</h2>
-                            <button id="admin-login-btn" onclick="openLoginModal()" class="bg-slate-800 dark:bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
-                                ⚙️ EDIT MODE
-                            </button>
-                            <button id="admin-logout-btn" onclick="adminLogout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer">
-                                🔒 EXIT EDIT
-                            </button>
+                            
+                            <div class="flex items-center gap-2 w-full md:w-auto">
+                                <input type="text" id="db-live-search" onkeyup="filterDatabaseTable()" placeholder="🔍 Filter by Machine ID..." class="wf-input py-2 text-sm w-full md:w-64 mb-0">
+                                
+                                <button id="admin-login-btn" onclick="openLoginModal()" class="bg-slate-800 dark:bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer whitespace-nowrap">
+                                    ⚙️ EDIT MODE
+                                </button>
+                                <button id="admin-logout-btn" onclick="adminLogout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition shadow-lg cursor-pointer whitespace-nowrap">
+                                    🔒 EXIT EDIT
+                                </button>
+                            </div>
                         </div>
                         <div class="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 custom-scroll">
-                            <table class="w-full text-left border-collapse text-sm min-w-[900px]">
+                            <table class="w-full text-left border-collapse text-sm min-w-[900px]" id="database-table">
                                 <thead class="bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 shadow-sm">
                                     <tr>
                                         <th class="p-4 font-bold text-slate-500 uppercase">Machine</th>
@@ -211,28 +227,37 @@
                 </div>
 
                 <div id="statistics" class="tab-content h-full">
-                    <div class="max-w-5xl mx-auto space-y-6">
-                        <div class="glass-panel rounded-3xl p-6 flex justify-between items-center shadow-lg">
+                    <div class="max-w-5xl mx-auto space-y-6" id="pdf-content-area">
+                        <div class="glass-panel rounded-3xl p-6 flex justify-between items-center shadow-lg" data-html2canvas-ignore>
                             <div>
                                 <h2 class="text-xl font-black uppercase text-blue-600">📊 Operational Intel</h2>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">วิเคราะห์ความถี่ของปัญหา</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Failure Frequency Analysis</p>
                             </div>
-                            <button onclick="updateAnalytics()" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-200 transition">🔄 Refresh</button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-center h-40">
-                                <p class="text-xs font-bold uppercase opacity-80">Total Incidents in DB</p>
-                                <p id="stat-total" class="text-6xl font-black mt-2">0</p>
-                            </div>
-                            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700 h-40 flex flex-col justify-center">
-                                <p class="text-xs font-bold text-slate-400 uppercase">Most Frequent Machine</p>
-                                <p id="stat-top-machine" class="text-2xl font-black text-slate-800 dark:text-white truncate mt-2">Analyzing...</p>
-                                <p id="stat-top-count" class="text-sm text-blue-500 font-bold mt-1">Count: 0</p>
+                            <div class="flex gap-2">
+                                <button onclick="updateAnalytics()" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-200 transition">🔄 Refresh</button>
+                                <button onclick="exportToPDF()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600 transition shadow-md flex items-center gap-1">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    Export PDF
+                                </button>
                             </div>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Top 10 Machine Failure Frequency</p>
-                            <div class="h-80 w-full"><canvas id="analyticsChart"></canvas></div>
+
+                        <div class="pdf-wrapper p-2 bg-transparent dark:bg-slate-950 rounded-2xl">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-center h-40">
+                                    <p class="text-xs font-bold uppercase opacity-80">Total Incidents in DB</p>
+                                    <p id="stat-total" class="text-6xl font-black mt-2">0</p>
+                                </div>
+                                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700 h-40 flex flex-col justify-center">
+                                    <p class="text-xs font-bold text-slate-400 uppercase">Most Frequent Machine</p>
+                                    <p id="stat-top-machine" class="text-2xl font-black text-slate-800 dark:text-white truncate mt-2">Analyzing...</p>
+                                    <p id="stat-top-count" class="text-sm text-blue-500 font-bold mt-1">Count: 0</p>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-4">Top 10 Machine Failure Frequency</p>
+                                <div class="h-80 w-full"><canvas id="analyticsChart"></canvas></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,16 +287,16 @@
             </div>
             <div class="space-y-4">
                 <div class="bg-red-50 dark:bg-red-900/10 p-3 rounded-xl border border-red-100 dark:border-red-800/30">
-                    <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Problem (ปัญหา):</p>
+                    <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Problem:</p>
                     <p id="pm-problem" class="text-sm font-bold text-red-600 dark:text-red-400 mt-1"></p>
                 </div>
                 <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cause (สาเหตุ):</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cause:</p>
                     <p id="pm-cause" class="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1"></p>
                 </div>
                 <div class="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border-2 border-emerald-500/30 shadow-sm mt-4">
                     <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Recommended Action (วิธีแก้)
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Recommended Action
                     </p>
                     <p id="pm-solution" class="text-base font-semibold text-slate-800 dark:text-slate-200 whitespace-pre-line"></p>
                 </div>
@@ -316,7 +341,7 @@
     </div>
 
     <script>
-        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ของคุณ ---
+        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ---
         const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         
         let allData = []; 
@@ -324,19 +349,20 @@
         let isAdmin = false; 
         let myChart = null;
 
-        // --- 1. โหลดข้อมูลทั้งหมดทันทีเมื่อเปิดเว็บ ---
+        // --- 1. โหลดข้อมูลทั้งหมด ---
         async function fetchGuidesFromAPI() {
             try {
                 addLog("Connecting to Cloud Database...");
                 const response = await fetch(`${BACKEND_URL}/api/guides`);
                 if (response.ok) {
                     allData = await response.json();
-                    machineNames = [...new Set(allData.map(d => d.machine.toUpperCase()))];
+                    machineNames = [...new Set(allData.map(d => d.machine.toUpperCase()))].sort();
                     addLog(`Successfully loaded ${allData.length} master records.`);
                     
-                    renderOverview(); // โหลดหน้าจอ Overview ใหม่
+                    renderOverview();
                     renderTable();
                     updateAnalytics();
+                    populateMachineDropdown(); // เติมข้อมูลใส่ Dropdown ค้นหาหลัก
                 } else { throw new Error("API Status: " + response.status); }
             } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
         }
@@ -345,13 +371,11 @@
         function renderOverview() {
             const grid = document.getElementById('overview-grid');
             const countLabel = document.getElementById('overview-count');
-            
-            // จัดกลุ่มปัญหาและเก็บ ID ของข้อมูลนั้นไว้ด้วยเพื่อเอาไว้เรียก Popup
             const grouped = {};
+            
             allData.forEach(item => {
                 const m = item.machine.toUpperCase();
                 if (!grouped[m]) grouped[m] = [];
-                // กรองข้อมูลซ้ำและค่าว่าง
                 if (item.problem && item.problem !== "-" && item.problem !== "General Error") {
                     if(!grouped[m].some(x => x.problem === item.problem)) {
                         grouped[m].push({ id: item.id, problem: item.problem });
@@ -363,14 +387,12 @@
             countLabel.innerText = `${machineKeys.length} MACHINES`;
 
             if (machineKeys.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-10">ไม่มีข้อมูลเครื่องจักรในระบบ</p>';
+                grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-10">No machine data available.</p>';
                 return;
             }
 
             grid.innerHTML = machineKeys.map(m => {
                 const problems = grouped[m];
-                
-                // สร้าง HTML ของลิสต์ปัญหา (ใส่ onclick หยุดการคลุมคลิกของการ์ด แล้วเปิด Popup)
                 const probHtml = problems.length > 0 
                     ? problems.slice(0, 5).map(p => `
                         <li onclick="event.stopPropagation(); openProblemModal('${p.id}')" 
@@ -391,41 +413,42 @@
                             <h3 class="font-black text-blue-700 dark:text-blue-400 text-xl truncate">${m}</h3>
                         </div>
                     </div>
-                    <ul class="space-y-0.5">
-                        ${probHtml}
-                        ${moreHtml}
-                    </ul>
-                </div>
-                `;
+                    <ul class="space-y-0.5">${probHtml}${moreHtml}</ul>
+                </div>`;
             }).join('');
         }
 
-        // --- ฟังก์ชันสำหรับ Popup หน้า Overview ---
         function openProblemModal(id) {
             const match = allData.find(d => d.id === id);
             if (match) {
                 document.getElementById('pm-machine').innerText = match.machine;
                 document.getElementById('pm-problem').innerText = match.problem;
-                document.getElementById('pm-cause').innerText = match.cause || "ไม่ระบุสาเหตุ";
-                document.getElementById('pm-solution').innerText = match.solution || "ไม่ระบุวิธีแก้ไข";
+                document.getElementById('pm-cause').innerText = match.cause || "Not specified";
+                document.getElementById('pm-solution').innerText = match.solution || "Not specified";
                 document.getElementById('quick-problem-modal').classList.add('active');
             }
         }
-        function closeProblemModal() {
-            document.getElementById('quick-problem-modal').classList.remove('active');
-        }
+        function closeProblemModal() { document.getElementById('quick-problem-modal').classList.remove('active'); }
 
-        // คีย์ลัด: คลิกการ์ดในหน้าแรกแล้วเด้งไปค้นหาเครื่องนั้นเลย
         function jumpToSearch(machineName) {
             switchTab('intel-search');
-            document.getElementById('is-search').value = machineName;
+            document.getElementById('is-machine-dropdown').value = machineName;
             selectMachine(machineName);
         }
 
-        // --- 2. ฟังก์ชัน Intel Search ---
+        // --- 2. ฟังก์ชัน Intel Search (Dual Mode) ---
+        function populateMachineDropdown() {
+            const sel = document.getElementById('is-machine-dropdown');
+            sel.innerHTML = '<option value="">-- Choose Machine --</option>';
+            machineNames.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
+        }
+
         function handleSmartSuggest(val) {
             const list = document.getElementById('suggestion-list');
             list.innerHTML = '';
+            // ซิงค์ค่าให้ตรงกันระหว่างกล่องพิมพ์และกล่อง Dropdown
+            document.getElementById('is-machine-dropdown').value = ""; 
+            
             if (!val) { 
                 list.classList.add('hidden'); 
                 resetIntelSearchUI();
@@ -438,7 +461,10 @@
                     const li = document.createElement('li');
                     li.className = 'p-4 hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer font-bold text-blue-600 dark:text-blue-400 transition';
                     li.textContent = name;
-                    li.onclick = () => selectMachine(name);
+                    li.onclick = () => {
+                        document.getElementById('is-machine-dropdown').value = name;
+                        selectMachine(name);
+                    };
                     list.appendChild(li);
                 });
                 list.classList.remove('hidden');
@@ -446,15 +472,17 @@
         }
 
         function selectMachine(name) {
+            if(!name) { resetIntelSearchUI(); return; }
+            
             document.getElementById('is-search').value = name;
             document.getElementById('suggestion-list').classList.add('hidden');
             
-            // รีเซ็ตช่อง Solution
+            document.getElementById('is-problem-container').classList.remove('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             
             const dropdown = document.getElementById('is-problem-dropdown');
-            dropdown.innerHTML = '<option value="">-- เลือกปัญหาที่เคยเกิดขึ้น --</option>';
+            dropdown.innerHTML = '<option value="">-- Select an issue from history --</option>';
             
             const issues = allData.filter(d => d.machine.toUpperCase() === name.toUpperCase())
                                   .map(d => d.problem)
@@ -463,9 +491,9 @@
             if (issues.length > 0) {
                 issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
             } else {
-                dropdown.innerHTML += '<option disabled>ไม่พบประวัติปัญหาสำหรับเครื่องนี้</option>';
+                dropdown.innerHTML += '<option disabled>No specific history found</option>';
             }
-            addLog(`Machine Linked: ${name}`);
+            addLog(`Analyzing Data for: ${name}`);
         }
 
         function handleProblemSelect(val) {
@@ -475,7 +503,7 @@
         }
 
         function searchSolution(issueText) {
-            const mId = document.getElementById('is-search').value;
+            const mId = document.getElementById('is-search').value || document.getElementById('is-machine-dropdown').value;
             const solSec = document.getElementById('is-solution-section');
             if (!mId || issueText.length < 2) { solSec.classList.add('hidden'); return; }
 
@@ -488,13 +516,13 @@
 
             if (match) {
                 solSec.classList.remove('hidden');
-                document.getElementById('is-solution-text').innerText = match.solution || "ไม่มีระบุ";
-                document.getElementById('is-cause-text').innerText = match.cause || "ไม่มีระบุ";
+                document.getElementById('is-solution-text').innerText = match.solution || "Not specified";
+                document.getElementById('is-cause-text').innerText = match.cause || "Not specified";
                 addLog("Perfect match solution found.");
             } else if (fallbackMatch && issueText.length > 5) {
                 solSec.classList.remove('hidden');
-                document.getElementById('is-solution-text').innerText = fallbackMatch.solution || "ไม่มีระบุ";
-                document.getElementById('is-cause-text').innerText = fallbackMatch.cause || "ไม่มีระบุ";
+                document.getElementById('is-solution-text').innerText = fallbackMatch.solution || "Not specified";
+                document.getElementById('is-cause-text').innerText = fallbackMatch.cause || "Not specified";
                 addLog("General solution suggested.");
             } else {
                 solSec.classList.add('hidden');
@@ -502,15 +530,26 @@
         }
 
         function resetIntelSearchUI() {
+            document.getElementById('is-search').value = '';
+            document.getElementById('is-machine-dropdown').value = '';
+            document.getElementById('is-problem-container').classList.add('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
-            document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- โปรดระบุชื่อเครื่องจักรเพื่อดูประวัติปัญหา --</option>';
         }
 
-        // --- 3. ระบบ Database / Admin ---
-        function renderTable() {
+        // --- 3. ระบบ Database & Live Search ---
+        function renderTable(filterText = "") {
             const tbody = document.getElementById('db-body');
-            tbody.innerHTML = allData.map(row => `
+            const filteredData = filterText 
+                ? allData.filter(r => r.machine.toLowerCase().includes(filterText.toLowerCase()))
+                : allData;
+
+            if(filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-400">No records found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredData.map(row => `
                 <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition border-b dark:border-slate-800">
                     <td class="p-4 font-bold text-blue-600 uppercase whitespace-nowrap">${row.machine}</td>
                     <td class="p-4 text-[10px] text-slate-500 whitespace-nowrap font-mono">${row.model}<br>${row.line} | ${row.process}</td>
@@ -526,6 +565,12 @@
                     ` : ''}
                 </tr>
             `).join('');
+        }
+
+        // Live Search Handler
+        function filterDatabaseTable() {
+            const val = document.getElementById('db-live-search').value;
+            renderTable(val);
         }
 
         async function addDataToAPI() {
@@ -548,17 +593,17 @@
                 if(response.ok) {
                     document.getElementById('add-form').reset();
                     addLog("Record saved to Database.", "success");
-                    alert("✅ บันทึกข้อมูลลง Database สำเร็จ!");
+                    alert("✅ Record saved successfully!");
                     fetchGuidesFromAPI();
                 } else { alert("❌ Error saving record."); }
             } catch (e) { addLog("API offline.", "error"); }
         }
 
         async function deleteFromAPI(id) {
-            if(confirm("⚠️ ลบข้อมูลนี้ถาวร?")) {
+            if(confirm("⚠️ Permanently delete this record?")) {
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, { method: 'DELETE' });
-                    if(response.ok) fetchGuidesFromAPI();
+                    if(response.ok) { addLog("Record deleted.","success"); fetchGuidesFromAPI(); }
                 } catch (e) { addLog("Delete failed.", "error"); }
             }
         }
@@ -603,7 +648,7 @@
             } catch (e) { addLog("Update failed.", "error"); }
         }
 
-        // --- 4. ระบบสถิติ กราฟที่สวยงาม ---
+        // --- 4. ระบบสถิติ และ Export PDF ---
         function updateAnalytics() {
             if (allData.length === 0) return;
             document.getElementById('stat-total').innerText = allData.length;
@@ -616,7 +661,7 @@
 
             const sorted = Object.entries(mFreq).sort((a, b) => b[1] - a[1]);
             document.getElementById('stat-top-machine').innerText = sorted[0][0];
-            document.getElementById('stat-top-count').innerText = `Frequency: ${sorted[0][1]}`;
+            document.getElementById('stat-top-count').innerText = `Incidents: ${sorted[0][1]}`;
 
             const top10 = sorted.slice(0, 10);
             const labels = top10.map(x => x[0]);
@@ -628,7 +673,7 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'จำนวนปัญหาที่พบ', data: counts, backgroundColor: '#3b82f6', borderRadius: 8 }]
+                    datasets: [{ label: 'Number of Incidents', data: counts, backgroundColor: '#3b82f6', borderRadius: 8 }]
                 },
                 options: { 
                     responsive: true, 
@@ -642,20 +687,40 @@
             });
         }
 
+        // ฟังก์ชัน Export หน้าสถิติเป็น PDF
+        function exportToPDF() {
+            addLog("Generating PDF Report...");
+            const element = document.getElementById('pdf-content-area');
+            const opt = {
+                margin:       0.5,
+                filename:     `MachineSync_Report_${new Date().toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+            // HTML2PDF Promise
+            html2pdf().set(opt).from(element).save().then(() => {
+                addLog("PDF Exported Successfully.", "success");
+            }).catch(err => {
+                addLog("PDF Export Failed.", "error");
+            });
+        }
+
         // --- 5. UI Helpers ---
         function openLoginModal() { document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; document.getElementById('login-modal').classList.add('active'); }
         function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
         function verifyLogin() {
             if (document.getElementById('login-user').value === "5022825392" && document.getElementById('login-pass').value === "Phonlawat_25392") {
                 isAdmin = true; closeLoginModal(); updateAdminUI(); addLog("Admin mode activated.", "success");
-            } else { alert("❌ รหัสผ่านไม่ถูกต้อง!"); }
+            } else { alert("❌ Invalid Credentials!"); }
         }
         function adminLogout() { isAdmin = false; updateAdminUI(); addLog("Admin logged out."); }
         function updateAdminUI() {
             document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
             document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
             document.getElementById('th-action').classList.toggle('hidden', !isAdmin);
-            renderTable();
+            // Re-render table keeping current filter
+            filterDatabaseTable(); 
         }
 
         function switchTab(tabId) {
@@ -675,7 +740,7 @@
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
 
         function addLog(msg, type = 'info') { 
-            document.getElementById('log-msg').innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            document.getElementById('log-msg').innerText = `>_ [${new Date().toLocaleTimeString()}] ${msg}`;
             document.getElementById('log-msg').className = type === 'error' ? 'text-xs font-mono text-red-500 font-bold w-full truncate' : 'text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold w-full truncate';
         }
 
@@ -694,7 +759,7 @@
                 document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', {hour12: false});
             }, 1000);
             generateCalendar();
-            fetchGuidesFromAPI(); // โหลดข้อมูลอัตโนมัติ
+            fetchGuidesFromAPI();
         };
     </script>
 </body>
