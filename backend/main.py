@@ -19,7 +19,9 @@ app.add_middleware(
 
 # 🌟 แก้ไขตรงนี้: เชื่อมต่อ Cloud Database โดยตรง 🌟
 # (อย่าลืมเปลี่ยน <username>:<password> และลิงก์ด้านล่างให้เป็นของเพื่อนเองนะครับ)
-MONGODB_URL = "mongodb+srv://phonlawat_api:kPOIUadGVRbjOM59@cluster0.bkogsh0.mongodb.net/?appName=Cluster0"
+# 🌟 แก้ไขตรงนี้: ดึงค่าจาก Environment Variable ชื่อ MONGO_DETAILS
+# ถ้าหาไม่เจอ (รันในเครื่องตัวเอง) ให้ใช้ Localhost แทน
+MONGODB_URL = os.getenv("MONGO_DETAILS", "mongodb://127.0.0.1:27017")
 client = AsyncIOMotorClient(MONGODB_URL)
 
 db = client.factory_db
