@@ -341,15 +341,14 @@
     </div>
 
     <script>
-        // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ของคุณ ---
-        const BACKEND_URL = 'http://43.72.97.65:8000';
+        // --- ⚙️ เปลี่ยนตัวแปรกลับไปใช้ Render Cloud ---
+        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
         
         let allData = []; 
         let machineNames = [];
         let isAdmin = false; 
         let myChart = null;
 
-        // --- 1. โหลดข้อมูลทั้งหมด ---
         async function fetchGuidesFromAPI() {
             try {
                 addLog("Connecting to Cloud Database...");
@@ -367,7 +366,6 @@
             } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
         }
 
-        // --- 1.1 วาดหน้าจอ Overview ---
         function renderOverview() {
             const grid = document.getElementById('overview-grid');
             const countLabel = document.getElementById('overview-count');
@@ -436,7 +434,6 @@
             selectMachine(machineName);
         }
 
-        // --- 2. ฟังก์ชัน Intel Search (Dual Mode) ---
         function populateMachineDropdown() {
             const sel = document.getElementById('is-machine-dropdown');
             sel.innerHTML = '<option value="">-- Choose Machine --</option>';
@@ -535,7 +532,6 @@
             document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- Select an issue from history --</option>';
         }
 
-        // --- 3. ระบบ Database & Live Search ---
         function renderTable(filterText = "") {
             const tbody = document.getElementById('db-body');
             const filteredData = filterText 
@@ -565,7 +561,6 @@
             `).join('');
         }
 
-        // Live Search Handler
         function filterDatabaseTable() {
             const val = document.getElementById('db-live-search').value;
             renderTable(val);
@@ -646,7 +641,6 @@
             } catch (e) { addLog("Update failed.", "error"); }
         }
 
-        // --- 4. ระบบสถิติ และ Export PDF ---
         function updateAnalytics() {
             if (allData.length === 0) return;
             document.getElementById('stat-total').innerText = allData.length;
@@ -685,7 +679,6 @@
             });
         }
 
-        // ฟังก์ชัน Export หน้าสถิติเป็น PDF
         function exportToPDF() {
             addLog("Generating PDF Report...");
             const element = document.getElementById('pdf-content-area');
@@ -696,7 +689,6 @@
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
-            // HTML2PDF Promise
             html2pdf().set(opt).from(element).save().then(() => {
                 addLog("PDF Exported Successfully.", "success");
             }).catch(err => {
@@ -704,7 +696,6 @@
             });
         }
 
-        // --- 5. UI Helpers ---
         function openLoginModal() { document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; document.getElementById('login-modal').classList.add('active'); }
         function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
         function verifyLogin() {
@@ -717,7 +708,6 @@
             document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
             document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
             document.getElementById('th-action').classList.toggle('hidden', !isAdmin);
-            // Re-render table keeping current filter
             filterDatabaseTable(); 
         }
 
@@ -754,7 +744,6 @@
             for(let i=0; i<firstDay; i++) container.innerHTML += '<div></div>';
             
             for(let d=1; d<=daysInMonth; d++) { 
-                // เช็กว่าเป็นวันปัจจุบันหรือไม่ ถ้าใช่ให้ใส่คลาส Tailwind สร้างวงกลมสีน้ำเงิน
                 const isToday = d === now.getDate();
                 const spanClass = isToday 
                     ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center mx-auto shadow-sm font-bold' 
