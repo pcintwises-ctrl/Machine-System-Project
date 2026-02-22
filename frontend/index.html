@@ -342,7 +342,7 @@
 
     <script>
         // --- ⚙️ เชื่อมต่อกับเว็บ RENDER ของคุณ ---
-        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
+        const BACKEND_URL = 'http://43.72.97.65:8000';
         
         let allData = []; 
         let machineNames = [];
@@ -743,12 +743,25 @@
         }
 
         function generateCalendar() {
-            const now = new Date(); const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+            const now = new Date(); 
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); 
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
             const container = document.getElementById('calendar-days');
+            
             document.getElementById('cal-month').innerText = now.toLocaleDateString('en-GB', {month:'short', year:'numeric'});
             container.innerHTML = '';
+            
             for(let i=0; i<firstDay; i++) container.innerHTML += '<div></div>';
-            for(let d=1; d<=daysInMonth; d++) { container.innerHTML += `<div><span class="${d === now.getDate() ? 'today' : ''}">${d}</span></div>`; }
+            
+            for(let d=1; d<=daysInMonth; d++) { 
+                // เช็กว่าเป็นวันปัจจุบันหรือไม่ ถ้าใช่ให้ใส่คลาส Tailwind สร้างวงกลมสีน้ำเงิน
+                const isToday = d === now.getDate();
+                const spanClass = isToday 
+                    ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center mx-auto shadow-sm font-bold' 
+                    : 'w-6 h-6 flex items-center justify-center mx-auto text-slate-600 dark:text-slate-300';
+                
+                container.innerHTML += `<div><span class="${spanClass}">${d}</span></div>`; 
+            }
         }
 
         window.onload = () => {
