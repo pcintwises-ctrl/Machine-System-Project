@@ -17,8 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# เชื่อมต่อ MongoDB Atlas 
-client = AsyncIOMotorClient(os.getenv("MONGO_DETAILS1"))
+# 🌟 แก้ไขตรงนี้: เชื่อมต่อ Cloud Database โดยตรง 🌟
+# (อย่าลืมเปลี่ยน <username>:<password> และลิงก์ด้านล่างให้เป็นของเพื่อนเองนะครับ)
+MONGODB_URL = "mongodb+srv://phonlawat_api:kPOIUadGVRbjOM59@cluster0.bkogsh0.mongodb.net/?appName=Cluster0"
+client = AsyncIOMotorClient(MONGODB_URL)
+
 db = client.factory_db
 # ใช้ Collection เดิมที่มีข้อมูล Excel 255 รายการอยู่
 guide_collection = db.troubleshooting_guide 
