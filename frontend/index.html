@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,7 @@
         .sidebar-open { transform: translateX(0) !important; }
     </style>
 </head>
-<body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200 relative">
+<body class="bg-[#f1f5f9] dark:bg-slate-950 h-screen flex flex-col text-slate-700 dark:text-slate-200 relative transition-colors duration-300">
 
     <header class="h-16 glass-panel flex items-center justify-between px-4 lg:px-6 z-50 shrink-0 border-b border-slate-200 dark:border-slate-800">
         <div class="flex items-center gap-3">
@@ -51,7 +51,7 @@
                     <span class="text-[10px] leading-none text-center">MTF<br>SUP</span>
                 </div>
                 <h1 class="text-xl font-black tracking-tight uppercase hidden sm:block text-slate-800 dark:text-white">
-                    MachineSync trouble<span class="text-blue-600">guideline</span>
+                    MachineSync <span class="text-blue-600">Pro</span>
                 </h1>
             </div>
         </div>
@@ -141,6 +141,28 @@
                             </div>
                         </div>
 
+                        <div id="is-model-line-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden animate-in fade-in">
+                            <div id="model-wrapper">
+                                <label class="block text-[10px] font-bold uppercase text-emerald-500 mb-2 tracking-widest ml-1">Select Model</label>
+                                <select id="is-model-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-3" onchange="filterProblems()">
+                                    <option value="">-- All Models --</option>
+                                </select>
+                            </div>
+                            <div id="line-wrapper">
+                                <label class="block text-[10px] font-bold uppercase text-purple-500 mb-2 tracking-widest ml-1">Select Line</label>
+                                <select id="is-line-dropdown" class="wf-input cursor-pointer font-medium text-slate-700 dark:text-slate-200 py-3" onchange="filterProblems()">
+                                    <option value="">-- All Lines --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="guideline-link-container" class="hidden mb-6 animate-in fade-in zoom-in duration-300">
+                            <a id="guideline-url" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-slate-800 dark:bg-slate-800 border border-slate-700 hover:bg-blue-600 text-white font-black py-3 rounded-2xl shadow-lg transition-all hover:scale-[1.02] active:scale-95 group">
+                                <span class="text-xl group-hover:rotate-12 transition">📁</span>
+                                <span class="tracking-widest uppercase text-sm">Open Machine Document</span>
+                            </a>
+                        </div>
+
                         <div id="is-problem-container" class="space-y-4 mb-6 animate-in fade-in">
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Select Historical Problem</label>
@@ -150,27 +172,33 @@
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest ml-1">Or Describe Symptoms</label>
-                                <textarea id="is-problem-manual" class="wf-input h-28 resize-none" placeholder="Type current symptoms here..." oninput="searchSolution(this.value)"></textarea>
+                                <textarea id="is-problem-manual" class="wf-input h-24 resize-none" placeholder="Type current symptoms here..." oninput="searchSolution(this.value)"></textarea>
                             </div>
                         </div>
 
                         <div id="is-solution-section" class="hidden animate-in zoom-in duration-300">
-                            <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/30 rounded-2xl p-6 shadow-lg">
-                                <h3 class="text-emerald-600 font-bold text-sm uppercase mb-4 flex items-center gap-2">
+                            <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/30 rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                                <h3 class="text-emerald-600 font-black text-sm uppercase mb-4 flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Solution Protocol
                                 </h3>
-                                <div class="space-y-4">
+                                <div class="space-y-4 relative z-10">
                                     <div>
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action:</p>
-                                        <p id="is-solution-text" class="text-lg font-semibold text-slate-800 dark:text-white mt-1 whitespace-pre-line"></p>
+                                        <p id="is-solution-text" class="text-lg font-bold text-slate-800 dark:text-white mt-1 whitespace-pre-line"></p>
                                     </div>
-                                    <div class="p-3 bg-white/50 dark:bg-slate-950/50 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                                    <div class="p-3 bg-white/60 dark:bg-slate-950/60 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause:</p>
                                         <p id="is-cause-text" class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1"></p>
                                     </div>
-                                    <div id="is-doc-link-container" class="mt-4 hidden">
-                                        <a id="is-doc-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition shadow-md text-sm">
-                                            📖 OPEN MANUAL DOCUMENT
+                                    
+                                    <div id="is-image-container" class="mt-4 hidden">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Visual Reference:</p>
+                                        <img id="is-problem-image" src="" alt="Problem Visual" class="w-full max-h-64 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" onerror="this.parentElement.classList.add('hidden')">
+                                    </div>
+
+                                    <div id="is-doc-link-container" class="mt-6 hidden">
+                                        <a id="is-doc-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black transition shadow-lg text-sm tracking-widest hover:-translate-y-1">
+                                            📘 OPEN MANUAL DOCUMENT
                                         </a>
                                     </div>
                                 </div>
@@ -185,14 +213,14 @@
                         <h2 class="text-xl font-bold text-emerald-600 mb-6 border-b pb-2 dark:border-slate-700">➕ Add New Record</h2>
                         <form id="add-form" onsubmit="event.preventDefault(); addDataToAPI();">
                             <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div><label class="font-bold text-sm text-slate-500">Machine Name</label><input type="text" id="add-m" class="wf-input uppercase" required></div>
-                                <div><label class="font-bold text-sm text-slate-500">Model</label><input type="text" id="add-mo" class="wf-input" required></div>
-                                <div><label class="font-bold text-sm text-slate-500">Line</label><input type="text" id="add-l" class="wf-input" required></div>
-                                <div><label class="font-bold text-sm text-slate-500">Process</label><input type="text" id="add-po" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Machine Name</label><input type="text" id="add-m" class="wf-input uppercase" required></div>
+                                <div><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Model</label><input type="text" id="add-mo" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Line</label><input type="text" id="add-l" class="wf-input" required></div>
+                                <div><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Process</label><input type="text" id="add-po" class="wf-input" required></div>
                             </div>
-                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Problem</label><input type="text" id="add-p" class="wf-input" required></div>
-                            <div class="mb-4"><label class="font-bold text-sm text-slate-500">Cause</label><input type="text" id="add-c" class="wf-input" required></div>
-                            <div class="mb-6"><label class="font-bold text-sm text-slate-500">Solution</label><textarea id="add-s" class="wf-input h-24 resize-none" required></textarea></div>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Problem</label><input type="text" id="add-p" class="wf-input" required></div>
+                            <div class="mb-4"><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Cause</label><input type="text" id="add-c" class="wf-input" required></div>
+                            <div class="mb-6"><label class="font-bold text-sm text-slate-500 dark:text-slate-400">Solution</label><textarea id="add-s" class="wf-input h-24 resize-none" required></textarea></div>
                             <button type="submit" class="w-full bg-emerald-600 text-white font-black tracking-widest py-4 rounded-xl shadow-lg hover:bg-emerald-700 transition cursor-pointer">💾 COMMIT TO DATABASE</button>
                         </form>
                     </div>
@@ -214,18 +242,18 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 custom-scroll">
+                        <div class="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 custom-scroll bg-white dark:bg-slate-900">
                             <table class="w-full text-left border-collapse text-sm min-w-[900px]" id="database-table">
-                                <thead class="bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 shadow-sm">
+                                <thead class="bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 shadow-sm border-b dark:border-slate-700">
                                     <tr>
-                                        <th class="p-4 font-bold text-slate-500 uppercase">Machine</th>
-                                        <th class="p-4 font-bold text-slate-500 uppercase">Info (Mod/Lin/Pro)</th>
-                                        <th class="p-4 font-bold text-slate-500 uppercase w-1/4">Problem</th>
-                                        <th class="p-4 font-bold text-slate-500 uppercase w-1/3">Solution</th>
-                                        <th id="th-action" class="hidden p-4 font-bold text-slate-500 uppercase text-center w-24">Action</th>
+                                        <th class="p-4 font-bold text-slate-500 dark:text-slate-400 uppercase">Machine</th>
+                                        <th class="p-4 font-bold text-slate-500 dark:text-slate-400 uppercase">Info (Mod/Lin/Pro)</th>
+                                        <th class="p-4 font-bold text-slate-500 dark:text-slate-400 uppercase w-1/4">Problem</th>
+                                        <th class="p-4 font-bold text-slate-500 dark:text-slate-400 uppercase w-1/3">Solution</th>
+                                        <th id="th-action" class="hidden p-4 font-bold text-slate-500 dark:text-slate-400 uppercase text-center w-24">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="db-body" class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/50"></tbody>
+                                <tbody id="db-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
                             </table>
                         </div>
                     </div>
@@ -241,6 +269,7 @@
                             <div class="flex gap-2">
                                 <button onclick="updateAnalytics()" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-200 transition">🔄 Refresh</button>
                                 <button onclick="exportToPDF()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600 transition shadow-md flex items-center gap-1">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     Export PDF
                                 </button>
                             </div>
@@ -248,9 +277,10 @@
 
                         <div class="pdf-wrapper p-2 bg-transparent dark:bg-slate-950 rounded-2xl">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-center h-40">
-                                    <p class="text-xs font-bold uppercase opacity-80">Total Incidents in DB</p>
-                                    <p id="stat-total" class="text-6xl font-black mt-2">0</p>
+                                <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg flex flex-col justify-center h-40 relative overflow-hidden">
+                                    <div class="absolute -right-10 -bottom-10 opacity-20 text-9xl">⚙️</div>
+                                    <p class="text-xs font-bold uppercase opacity-80 z-10">Total Incidents in DB</p>
+                                    <p id="stat-total" class="text-6xl font-black mt-2 z-10">0</p>
                                 </div>
                                 <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-200 dark:border-slate-700 h-40 flex flex-col justify-center">
                                     <p class="text-xs font-bold text-slate-400 uppercase">Most Frequent Machine</p>
@@ -303,12 +333,6 @@
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Recommended Action
                     </p>
                     <p id="pm-solution" class="text-base font-semibold text-slate-800 dark:text-slate-200 whitespace-pre-line"></p>
-                    
-                    <div id="pm-doc-link-container" class="mt-4 hidden">
-                        <a id="pm-doc-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-lg font-bold text-xs transition">
-                            📘 View Full Manual
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -322,7 +346,7 @@
             <input type="text" id="login-user" class="wf-input mb-3" placeholder="Username">
             <input type="password" id="login-pass" class="wf-input mb-6" placeholder="Password">
             <div class="flex gap-2">
-                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition text-slate-700 dark:text-slate-300">Cancel</button>
                 <button onclick="verifyLogin()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">Login</button>
             </div>
         </div>
@@ -344,23 +368,30 @@
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">Solution</label><textarea id="em-s" class="wf-input h-32 resize-none"></textarea></div>
             </div>
             <div class="flex gap-4 mt-6 pt-6 border-t dark:border-slate-800">
-                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-4 rounded-xl font-bold transition">Cancel</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 py-4 rounded-xl font-bold transition text-slate-700 dark:text-slate-300">Cancel</button>
                 <button onclick="saveEditToAPI()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">UPDATE RECORD</button>
             </div>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com';
+        // --- ⚙️ CONFIGURATION ---
+        const BACKEND_URL = 'http://127.0.0.1:8000'; // เปลี่ยนเป็นลิงก์ Render ถ้าใช้บน Cloud
+
+        // 🌟 GUIDELINE DATABASE (Link คู่มือเครื่องจักรหลัก)
+        const MACHINE_GUIDELINES = {
+            "F_NO": "https://sonyapc.sharepoint.com/:p:/r/sites/S069-STT-CL-MFE-Private/Shared%20Documents/CurrentYear/01.Common/05.Machine%20Guideline/F%20NO%20MC%20Guideline.pptx?d=w429736cf76484e88a66875921469b11f&csf=1&web=1&e=bwBTwT"
+        };
         
         let allData = []; 
         let machineNames = [];
         let isAdmin = false; 
         let myChart = null;
 
+        // --- 1. โหลดข้อมูลทั้งหมด ---
         async function fetchGuidesFromAPI() {
             try {
-                addLog("Connecting to Cloud Database...");
+                addLog("Connecting to Database...");
                 const response = await fetch(`${BACKEND_URL}/api/guides`);
                 if (response.ok) {
                     allData = await response.json();
@@ -375,6 +406,7 @@
             } catch (error) { addLog("Connection failed. Please check backend.", "error"); }
         }
 
+        // --- 1.1 วาดหน้าจอ Overview ---
         function renderOverview() {
             const grid = document.getElementById('overview-grid');
             const countLabel = document.getElementById('overview-count');
@@ -430,20 +462,9 @@
             const match = allData.find(d => String(d.id) === String(id));
             if (match) {
                 document.getElementById('pm-machine').innerText = match.machine || '-';
-                // ถ้ามี error code เอามาโชว์ด้วย
-                const errCode = match.error_code ? ` [Error: ${match.error_code}]` : '';
-                document.getElementById('pm-problem').innerText = (match.problem || '-') + errCode;
+                document.getElementById('pm-problem').innerText = match.problem || '-';
                 document.getElementById('pm-cause').innerText = match.cause || "Not specified";
                 document.getElementById('pm-solution').innerText = match.solution || "Not specified";
-                
-                // จัดการเรื่องปุ่ม Link ใน Modal
-                if(match.link_document) {
-                    document.getElementById('pm-doc-link-container').classList.remove('hidden');
-                    document.getElementById('pm-doc-link').href = match.link_document;
-                } else {
-                    document.getElementById('pm-doc-link-container').classList.add('hidden');
-                }
-                
                 document.getElementById('quick-problem-modal').classList.add('active');
             }
         }
@@ -455,6 +476,7 @@
             selectMachine(machineName);
         }
 
+        // --- 2. ฟังก์ชัน Intel Search (Dual Mode + Filter) ---
         function populateMachineDropdown() {
             const sel = document.getElementById('is-machine-dropdown');
             sel.innerHTML = '<option value="">-- Choose Machine --</option>';
@@ -496,19 +518,75 @@
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             
+            // ดึงข้อมูลเฉพาะเครื่องที่เลือก
+            const machineData = allData.filter(d => d.machine && d.machine.toUpperCase() === name.toUpperCase());
+
+            // 🌟 1. ดึง Model และ Line เพื่อสร้าง Dropdown
+            const models = [...new Set(machineData.map(d => d.model))].filter(v => v && v !== "-" && v.trim() !== "");
+            const lines = [...new Set(machineData.map(d => d.line))].filter(v => v && v !== "-" && v.trim() !== "");
+
+            const mlContainer = document.getElementById('is-model-line-container');
+            const modelDropdown = document.getElementById('is-model-dropdown');
+            const lineDropdown = document.getElementById('is-line-dropdown');
+
+            if (models.length > 0 || lines.length > 0) {
+                mlContainer.classList.remove('hidden');
+                
+                // จัดการ Model Dropdown
+                modelDropdown.innerHTML = '<option value="">-- All Models --</option>';
+                models.forEach(m => modelDropdown.innerHTML += `<option value="${m}">${m}</option>`);
+                document.getElementById('model-wrapper').classList.toggle('hidden', models.length === 0);
+
+                // จัดการ Line Dropdown
+                lineDropdown.innerHTML = '<option value="">-- All Lines --</option>';
+                lines.forEach(l => lineDropdown.innerHTML += `<option value="${l}">${l}</option>`);
+                document.getElementById('line-wrapper').classList.toggle('hidden', lines.length === 0);
+            } else {
+                mlContainer.classList.add('hidden');
+                modelDropdown.innerHTML = '<option value="">-- All Models --</option>';
+                lineDropdown.innerHTML = '<option value="">-- All Lines --</option>';
+            }
+
+            // 🌟 2. แสดงลิงก์เอกสารหลัก (ถ้ามี)
+            const guidelineContainer = document.getElementById('guideline-link-container');
+            const guidelineBtn = document.getElementById('guideline-url');
+            if (MACHINE_GUIDELINES[name.toUpperCase()]) {
+                guidelineContainer.classList.remove('hidden');
+                guidelineBtn.href = MACHINE_GUIDELINES[name.toUpperCase()];
+            } else {
+                guidelineContainer.classList.add('hidden');
+            }
+
+            // รีเฟรชรายการปัญหา
+            filterProblems();
+            addLog(`Analyzing Data for: ${name}`);
+        }
+
+        function filterProblems() {
+            const machineName = document.getElementById('is-search').value || document.getElementById('is-machine-dropdown').value;
+            const modelVal = document.getElementById('is-model-dropdown').value;
+            const lineVal = document.getElementById('is-line-dropdown').value;
+
+            // กรองข้อมูลตาม Machine, Model, Line
+            let filteredData = allData.filter(d => d.machine && d.machine.toUpperCase() === machineName.toUpperCase());
+            if (modelVal) filteredData = filteredData.filter(d => d.model === modelVal);
+            if (lineVal) filteredData = filteredData.filter(d => d.line === lineVal);
+
+            // ดึงปัญหาที่ไม่ซ้ำกัน
+            const issues = [...new Set(filteredData.map(d => d.problem))]
+                            .filter(v => v && v !== "-" && v !== "General Error");
+
             const dropdown = document.getElementById('is-problem-dropdown');
             dropdown.innerHTML = '<option value="">-- Select an issue from history --</option>';
             
-            const issues = allData.filter(d => d.machine && d.machine.toUpperCase() === name.toUpperCase())
-                                  .map(d => d.problem)
-                                  .filter((v, i, a) => a.indexOf(v) === i && v && v !== "-" && v !== "General Error");
-
             if (issues.length > 0) {
                 issues.forEach(issue => dropdown.innerHTML += `<option value="${issue}">${issue}</option>`);
             } else {
                 dropdown.innerHTML += '<option disabled>No specific history found</option>';
             }
-            addLog(`Analyzing Data for: ${name}`);
+            
+            // ซ่อนหน้าต่าง Solution ไว้ก่อนจนกว่าจะเลือกปัญหา
+            document.getElementById('is-solution-section').classList.add('hidden');
         }
 
         function handleProblemSelect(val) {
@@ -519,36 +597,50 @@
 
         function searchSolution(issueText) {
             const mId = document.getElementById('is-search').value || document.getElementById('is-machine-dropdown').value;
+            const modelVal = document.getElementById('is-model-dropdown').value;
+            const lineVal = document.getElementById('is-line-dropdown').value;
             const solSec = document.getElementById('is-solution-section');
+
             if (!mId || issueText.length < 2) { solSec.classList.add('hidden'); return; }
 
-            const match = allData.find(d => 
-                d.machine && d.machine.toUpperCase() === mId.toUpperCase() && 
+            // กรองข้อมูลก่อนจับคู่ปัญหา
+            let filteredData = allData.filter(d => d.machine && d.machine.toUpperCase() === mId.toUpperCase());
+            if (modelVal) filteredData = filteredData.filter(d => d.model === modelVal);
+            if (lineVal) filteredData = filteredData.filter(d => d.line === lineVal);
+
+            const match = filteredData.find(d => 
                 (d.problem.toLowerCase().includes(issueText.toLowerCase()) || issueText.toLowerCase().includes(d.problem.toLowerCase()))
             );
             
-            const fallbackMatch = allData.find(d => d.machine && d.machine.toUpperCase() === mId.toUpperCase() && d.solution && d.solution !== "-");
+            const fallbackMatch = filteredData.find(d => d.solution && d.solution !== "-");
+            const targetMatch = match || (issueText.length > 5 ? fallbackMatch : null);
 
-            if (match) {
+            if (targetMatch) {
                 solSec.classList.remove('hidden');
-                document.getElementById('is-solution-text').innerText = match.solution || "Not specified";
-                document.getElementById('is-cause-text').innerText = match.cause || "Not specified";
+                document.getElementById('is-solution-text').innerText = targetMatch.solution || "Not specified";
+                document.getElementById('is-cause-text').innerText = targetMatch.cause || "Not specified";
                 
-                // จัดการแสดงปุ่ม Link เอกสาร
-                if (match.link_document) {
-                    document.getElementById('is-doc-link-container').classList.remove('hidden');
-                    document.getElementById('is-doc-link').href = match.link_document;
+                // 🌟 จัดการแสดงผลลิงก์เอกสาร (Manual Link)
+                const docContainer = document.getElementById('is-doc-link-container');
+                const docBtn = document.getElementById('is-doc-link');
+                if (targetMatch.link_document && targetMatch.link_document !== "-" && targetMatch.link_document.startsWith("http")) {
+                    docContainer.classList.remove('hidden');
+                    docBtn.href = targetMatch.link_document;
                 } else {
-                    document.getElementById('is-doc-link-container').classList.add('hidden');
+                    docContainer.classList.add('hidden');
                 }
-                
-                addLog("Perfect match solution found.");
-            } else if (fallbackMatch && issueText.length > 5) {
-                solSec.classList.remove('hidden');
-                document.getElementById('is-solution-text').innerText = fallbackMatch.solution || "Not specified";
-                document.getElementById('is-cause-text').innerText = fallbackMatch.cause || "Not specified";
-                document.getElementById('is-doc-link-container').classList.add('hidden'); // ซ่อนปุ่มถ้าเป็น fallback
-                addLog("General solution suggested.");
+
+                // 🌟 จัดการแสดงผลรูปภาพ (Image)
+                const imgContainer = document.getElementById('is-image-container');
+                const imgElement = document.getElementById('is-problem-image');
+                if (targetMatch.image_path && targetMatch.image_path !== "-" && targetMatch.image_path.startsWith("http")) {
+                    imgElement.src = targetMatch.image_path;
+                    imgContainer.classList.remove('hidden');
+                } else {
+                    imgContainer.classList.add('hidden');
+                }
+
+                addLog(match ? "Perfect match solution found." : "General solution suggested.");
             } else {
                 solSec.classList.add('hidden');
             }
@@ -557,11 +649,14 @@
         function resetIntelSearchUI() {
             document.getElementById('is-search').value = '';
             document.getElementById('is-machine-dropdown').value = '';
+            document.getElementById('is-model-line-container').classList.add('hidden');
+            document.getElementById('guideline-link-container').classList.add('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- Select an issue from history --</option>';
         }
 
+        // --- 3. ระบบ Database & Live Search ---
         function renderTable(filterText = "") {
             const tbody = document.getElementById('db-body');
             const filteredData = filterText 
@@ -574,17 +669,19 @@
             }
 
             tbody.innerHTML = filteredData.map(row => {
-                const docLinkHtml = row.link_document 
-                    ? `<div class="mt-2"><a href="${row.link_document}" target="_blank" class="text-blue-500 hover:underline font-bold flex items-center gap-1 text-[10px] uppercase">📖 View Manual</a></div>` 
+                const docLinkHtml = (row.link_document && row.link_document !== "-")
+                    ? `<div class="mt-2"><a href="${row.link_document}" target="_blank" class="text-blue-500 hover:text-blue-400 hover:underline font-bold flex items-center gap-1 text-[10px] uppercase">📘 View Manual</a></div>` 
                     : '';
                 
-                const errCodeHtml = row.error_code ? `<br><span class="text-red-500 text-[10px] font-bold">ERR: ${row.error_code}</span>` : '';
+                const errCodeHtml = (row.error_code && row.error_code !== "-") 
+                    ? `<br><span class="text-red-500 dark:text-red-400 text-[10px] font-bold">ERR: ${row.error_code}</span>` 
+                    : '';
 
                 return `
                 <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition border-b dark:border-slate-800">
-                    <td class="p-4 font-bold text-blue-600 uppercase whitespace-nowrap">${row.machine || '-'}</td>
-                    <td class="p-4 text-[10px] text-slate-500 whitespace-nowrap font-mono">${row.model || '-'}<br>${row.line || '-'} | ${row.process || '-'}</td>
-                    <td class="p-4 text-sm font-medium">${row.problem || '-'}${errCodeHtml}</td>
+                    <td class="p-4 font-bold text-blue-600 dark:text-blue-400 uppercase whitespace-nowrap">${row.machine || '-'}</td>
+                    <td class="p-4 text-[10px] text-slate-500 dark:text-slate-400 whitespace-nowrap font-mono">${row.model || '-'}<br>${row.line || '-'} | ${row.process || '-'}</td>
+                    <td class="p-4 text-sm font-medium dark:text-slate-200">${row.problem || '-'}${errCodeHtml}</td>
                     <td class="p-4 text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                         ${row.solution || '-'}
                         ${docLinkHtml}
@@ -592,8 +689,8 @@
                     ${isAdmin ? `
                         <td class="p-4 align-middle text-center">
                             <div class="flex justify-center gap-2">
-                                <button onclick="openEditModal('${row.id}')" class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-                                <button onclick="deleteFromAPI('${row.id}')" class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                <button onclick="openEditModal('${row.id}')" class="p-2 bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 text-blue-600 dark:text-blue-400 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+                                <button onclick="deleteFromAPI('${row.id}')" class="p-2 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 text-red-600 dark:text-red-400 rounded-lg transition"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
                             </div>
                         </td>
                     ` : ''}
@@ -606,14 +703,160 @@
             renderTable(val);
         }
 
-        // --- ส่วนฟังก์ชันเสริมอื่นๆ ย่อไว้ให้กระชับ (สามารถใช้ตัวเดิมได้เลย) ---
-        async function addDataToAPI() { /* ใช้ตัวเดิม */ }
-        async function deleteFromAPI(id) { /* ใช้ตัวเดิม */ }
-        function openEditModal(id) { /* ใช้ตัวเดิม */ }
+        async function addDataToAPI() {
+            const payload = {
+                machine: document.getElementById('add-m').value,
+                model: document.getElementById('add-mo').value,
+                line: document.getElementById('add-l').value,
+                process: document.getElementById('add-po').value,
+                problem: document.getElementById('add-p').value,
+                cause: document.getElementById('add-c').value,
+                solution: document.getElementById('add-s').value
+            };
+            try {
+                addLog("Sending payload...");
+                const response = await fetch(`${BACKEND_URL}/api/guides`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(response.ok) {
+                    document.getElementById('add-form').reset();
+                    addLog("Record saved to Database.", "success");
+                    alert("✅ Record saved successfully!");
+                    fetchGuidesFromAPI();
+                } else { alert("❌ Error saving record."); }
+            } catch (e) { addLog("API offline.", "error"); }
+        }
+
+        async function deleteFromAPI(id) {
+            if(confirm("⚠️ Permanently delete this record?")) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, { method: 'DELETE' });
+                    if(response.ok) { addLog("Record deleted.","success"); fetchGuidesFromAPI(); }
+                } catch (e) { addLog("Delete failed.", "error"); }
+            }
+        }
+
+        function openEditModal(id) {
+            const d = allData.find(x => String(x.id) === String(id));
+            if(!d) return;
+            document.getElementById('edit-id').value = d.id;
+            document.getElementById('em-m').value = d.machine;
+            document.getElementById('em-mo').value = d.model;
+            document.getElementById('em-l').value = d.line;
+            document.getElementById('em-po').value = d.process;
+            document.getElementById('em-p').value = d.problem;
+            document.getElementById('em-c').value = d.cause;
+            document.getElementById('em-s').value = d.solution;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
         function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
-        async function saveEditToAPI() { /* ใช้ตัวเดิม */ }
-        function updateAnalytics() { /* ใช้ตัวเดิม (เช็ค row.machine) */ }
-        function exportToPDF() { /* ใช้ตัวเดิม */ }
+
+        async function saveEditToAPI() {
+            const id = document.getElementById('edit-id').value;
+            const payload = {
+                machine: document.getElementById('em-m').value,
+                model: document.getElementById('em-mo').value,
+                line: document.getElementById('em-l').value,
+                process: document.getElementById('em-po').value,
+                problem: document.getElementById('em-p').value,
+                cause: document.getElementById('em-c').value,
+                solution: document.getElementById('em-s').value
+            };
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/guides/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(response.ok) {
+                    closeEditModal();
+                    fetchGuidesFromAPI();
+                    addLog("Record updated.", "success");
+                }
+            } catch (e) { addLog("Update failed.", "error"); }
+        }
+
+        // --- 4. ระบบสถิติ และ Export PDF ---
+        function updateAnalytics() {
+            if (allData.length === 0) return;
+            document.getElementById('stat-total').innerText = allData.length;
+
+            const mFreq = {};
+            allData.forEach(d => {
+                if(!d.machine) return;
+                const m = d.machine.toUpperCase();
+                mFreq[m] = (mFreq[m] || 0) + 1;
+            });
+
+            const sorted = Object.entries(mFreq).sort((a, b) => b[1] - a[1]);
+            if(sorted.length > 0) {
+                document.getElementById('stat-top-machine').innerText = sorted[0][0];
+                document.getElementById('stat-top-count').innerText = `Incidents: ${sorted[0][1]}`;
+            }
+
+            const top10 = sorted.slice(0, 10);
+            const labels = top10.map(x => x[0]);
+            const counts = top10.map(x => x[1]);
+
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            
+            // เช็คว่าใช้ Dark Mode อยู่หรือไม่ เพื่อเปลี่ยนสีกราฟให้สวยงาม
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            const tickColor = isDark ? '#94a3b8' : '#64748b';
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ 
+                        label: 'Number of Incidents', 
+                        data: counts, 
+                        backgroundColor: '#3b82f6', 
+                        borderRadius: 8 
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1, precision: 0, color: tickColor },
+                            grid: { color: gridColor }
+                        },
+                        x: { 
+                            ticks: { color: tickColor },
+                            grid: { display: false } 
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function exportToPDF() {
+            addLog("Generating PDF Report...");
+            const element = document.getElementById('pdf-content-area');
+            const opt = {
+                margin:       0.5,
+                filename:     `MachineSync_Report_${new Date().toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save().then(() => {
+                addLog("PDF Exported Successfully.", "success");
+            }).catch(err => {
+                addLog("PDF Export Failed.", "error");
+            });
+        }
+
+        // --- 5. UI Helpers ---
         function openLoginModal() { document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; document.getElementById('login-modal').classList.add('active'); }
         function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
         function verifyLogin() {
@@ -628,24 +871,35 @@
             document.getElementById('th-action').classList.toggle('hidden', !isAdmin);
             filterDatabaseTable(); 
         }
-        function switchTab(tabId) { /* ใช้ตัวเดิม */ 
+
+        function switchTab(tabId) { 
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             const btnMap = {'overview':0, 'intel-search':1, 'add-record':2, 'database':3, 'statistics':4};
             document.querySelectorAll('.sidebar-btn')[btnMap[tabId]].classList.add('active');
             if(window.innerWidth < 1024) toggleSidebar();
+            
+            // อัปเดตกราฟเผื่อมีการสลับโหมดสี
+            if(tabId === 'statistics') updateAnalytics();
         }
-        function toggleSidebar() { /* ใช้ตัวเดิม */ 
+
+        function toggleSidebar() { 
             document.getElementById('mobile-sidebar').classList.toggle('sidebar-open');
             document.getElementById('sidebar-overlay').classList.toggle('hidden');
         }
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+
+        function toggleTheme() { 
+            document.documentElement.classList.toggle('dark'); 
+            updateAnalytics(); // อัปเดตสีกราฟ
+        }
+
         function addLog(msg, type = 'info') { 
             document.getElementById('log-msg').innerText = `>_ [${new Date().toLocaleTimeString()}] ${msg}`;
             document.getElementById('log-msg').className = type === 'error' ? 'text-xs font-mono text-red-500 font-bold w-full truncate' : 'text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold w-full truncate';
         }
-        function generateCalendar() { /* ใช้ตัวเดิม */ 
+
+        function generateCalendar() { 
             const now = new Date(); 
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); 
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();

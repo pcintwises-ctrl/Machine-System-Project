@@ -17,18 +17,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🌟 แก้ไขตรงนี้: เชื่อมต่อ Cloud Database โดยตรง 🌟
-# (อย่าลืมเปลี่ยน <username>:<password> และลิงก์ด้านล่างให้เป็นของเพื่อนเองนะครับ)
-# 🌟 แก้ไขตรงนี้: ดึงค่าจาก Environment Variable ชื่อ MONGO_DETAILS
+# 🌟 ดึงค่าจาก Environment Variable ชื่อ MONGO_DETAILS
 # ถ้าหาไม่เจอ (รันในเครื่องตัวเอง) ให้ใช้ Localhost แทน
 MONGODB_URL = os.getenv("MONGO_DETAILS", "mongodb://127.0.0.1:27017")
 client = AsyncIOMotorClient(MONGODB_URL)
 
 db = client.factory_db
-# ใช้ Collection เดิมที่มีข้อมูล Excel 255 รายการอยู่
+# ใช้ Collection เดิมที่มีข้อมูลอยู่
 guide_collection = db.troubleshooting_guide 
 
-# โครงสร้างข้อมูลที่หน้าเว็บใหม่ต้องการรับ-ส่ง
+# 🌟 โครงสร้างข้อมูลที่หน้าเว็บใหม่ต้องการรับ-ส่ง (อัปเดตให้รองรับคอลัมน์ใหม่จาก Excel)
 class GuideModel(BaseModel):
     machine: str
     model: str = "-"
@@ -37,8 +35,11 @@ class GuideModel(BaseModel):
     problem: str = "-"
     cause: str
     solution: str
+    error_code: str = "-"
+    link_document: str = "-"
+    image_path: str = "-"
 
-# 1. API: ดึงข้อมูลทั้งหมด (และแปลงชื่อคอลัมน์ Excel เก่าให้เข้ากับ UI ใหม่)
+# 1. API: ดึงข้อมูลทั้งหมด (และส่งข้อมูลรูปรวมถึงลิงก์ให้ Frontend)
 @app.get("/api/guides")
 async def get_guides():
     guides = []
@@ -51,9 +52,12 @@ async def get_guides():
             "line": doc.get("line", "-"),
             "process": doc.get("process", "-"),
             "problem": doc.get("problem", "General Error"), 
-            # แปลงชื่อคอลัมน์เก่าจาก Excel ให้แสดงผลใน UI ใหม่ได้
             "cause": doc.get("Cause & Positions to be checked", doc.get("cause", "-")),
-            "solution": doc.get("solv", doc.get("solution", "-"))
+            "solution": doc.get("solv", doc.get("solution", "-")),
+            # 🌟 ส่งฟิลด์ใหม่ไปให้หน้าเว็บใช้งาน
+            "error_code": doc.get("error_code", "-"),
+            "link_document": doc.get("link_document", "-"),
+            "image_path": doc.get("image_path", "-")
         })
     # เรียงลำดับจากใหม่ไปเก่า (อิงจาก ObjectID)
     return guides[::-1]
@@ -80,6 +84,9 @@ async def update_guide(guide_id: str, guide: GuideModel):
         "problem": guide.problem,
         "cause": guide.cause,
         "solution": guide.solution,
+        "error_code": guide.error_code,
+        "link_document": guide.link_document,
+        "image_path": guide.image_path,
         "Cause & Positions to be checked": guide.cause,
         "solv": guide.solution
     }
