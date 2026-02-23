@@ -156,13 +156,6 @@
                             </div>
                         </div>
 
-                        <div id="guideline-link-container" class="hidden mb-6 animate-in fade-in zoom-in duration-300">
-                            <a id="guideline-url" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-slate-800 dark:bg-slate-800 border border-slate-700 hover:bg-blue-600 text-white font-black py-3 rounded-2xl shadow-lg transition-all hover:scale-[1.02] active:scale-95 group">
-                                <span class="text-xl group-hover:rotate-12 transition">📁</span>
-                                <span class="tracking-widest uppercase text-sm">Open Machine Document</span>
-                            </a>
-                        </div>
-
                         <div id="is-problem-container" class="space-y-4 mb-6 animate-in fade-in">
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-blue-500 mb-2 tracking-widest ml-1">Select Historical Problem</label>
@@ -177,16 +170,19 @@
                         </div>
 
                         <div id="is-solution-section" class="hidden animate-in zoom-in duration-300">
-                            <div class="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-500/30 rounded-2xl p-6 shadow-lg relative overflow-hidden">
-                                <h3 class="text-emerald-600 font-black text-sm uppercase mb-4 flex items-center gap-2">
+                            <div class="bg-slate-50 dark:bg-slate-800 border-2 border-emerald-500/40 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                                <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                                
+                                <h3 class="text-emerald-600 dark:text-emerald-400 font-black text-sm uppercase mb-4 flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Solution Protocol
                                 </h3>
+                                
                                 <div class="space-y-4 relative z-10">
                                     <div>
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recommended Action:</p>
                                         <p id="is-solution-text" class="text-lg font-bold text-slate-800 dark:text-white mt-1 whitespace-pre-line"></p>
                                     </div>
-                                    <div class="p-3 bg-white/60 dark:bg-slate-950/60 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                                    <div class="p-3 bg-white/60 dark:bg-slate-900/60 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Potential Cause:</p>
                                         <p id="is-cause-text" class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1"></p>
                                     </div>
@@ -196,9 +192,16 @@
                                         <img id="is-problem-image" src="" alt="Problem Visual" class="w-full max-h-64 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" onerror="this.parentElement.classList.add('hidden')">
                                     </div>
 
-                                    <div id="is-doc-link-container" class="mt-6 hidden">
-                                        <a id="is-doc-link" href="#" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-black transition shadow-lg text-sm tracking-widest hover:-translate-y-1">
-                                            📘 OPEN MANUAL DOCUMENT
+                                    <div id="action-buttons-container" class="mt-6 flex flex-col sm:flex-row gap-3 hidden">
+                                        
+                                        <a id="guideline-url-inside" href="#" target="_blank" class="hidden flex-1 items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white py-3 px-4 rounded-xl font-black transition-all shadow-md text-[11px] sm:text-xs tracking-widest hover:-translate-y-1 group border border-emerald-400/50">
+                                            <svg class="w-5 h-5 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            MACHINE DOC
+                                        </a>
+
+                                        <a id="is-doc-link" href="#" target="_blank" class="hidden flex-1 items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white py-3 px-4 rounded-xl font-black transition-all shadow-md text-[11px] sm:text-xs tracking-widest hover:-translate-y-1 group border border-blue-400/50">
+                                            <span class="text-lg group-hover:-translate-y-1 transition-transform">📘</span>
+                                            PROBLEM MANUAL
                                         </a>
                                     </div>
                                 </div>
@@ -333,6 +336,12 @@
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Recommended Action
                     </p>
                     <p id="pm-solution" class="text-base font-semibold text-slate-800 dark:text-slate-200 whitespace-pre-line"></p>
+                    
+                    <div id="pm-doc-link-container" class="mt-4 hidden">
+                        <a id="pm-doc-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-lg font-bold text-xs transition">
+                            📘 View Full Manual
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -376,7 +385,7 @@
 
     <script>
         // --- ⚙️ CONFIGURATION ---
-        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com'; // เปลี่ยนเป็นลิงก์ Render ถ้าใช้บน Cloud
+        const BACKEND_URL = 'https://machine-api-fcm8.onrender.com'; // ลิงก์ Cloud
 
         // 🌟 GUIDELINE DATABASE (Link คู่มือเครื่องจักรหลัก)
         const MACHINE_GUIDELINES = {
@@ -387,6 +396,27 @@
         let machineNames = [];
         let isAdmin = false; 
         let myChart = null;
+
+        // --- ⏳ AUTO LOGOUT SYSTEM (10 Minutes) ---
+        let inactivityTimer;
+        const TIMEOUT_DURATION = 10 * 60 * 1000; // 10 นาที
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (isAdmin) {
+                inactivityTimer = setTimeout(() => {
+                    adminLogout();
+                    addLog("Session expired due to inactivity.", "error");
+                    alert("⏳ Session Timeout\nระบบได้ทำการ Logout อัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 10 นาที กรุณาเข้าสู่ระบบใหม่เพื่อทำการแก้ไขข้อมูล");
+                    openLoginModal();
+                }, TIMEOUT_DURATION);
+            }
+        }
+
+        // ตรวจจับการขยับเมาส์ พิมพ์ หรือเลื่อนจอ เพื่อรีเซ็ตเวลา
+        ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
 
         // --- 1. โหลดข้อมูลทั้งหมด ---
         async function fetchGuidesFromAPI() {
@@ -465,6 +495,14 @@
                 document.getElementById('pm-problem').innerText = match.problem || '-';
                 document.getElementById('pm-cause').innerText = match.cause || "Not specified";
                 document.getElementById('pm-solution').innerText = match.solution || "Not specified";
+                
+                if (match.link_document && match.link_document !== "-") {
+                    document.getElementById('pm-doc-link-container').classList.remove('hidden');
+                    document.getElementById('pm-doc-link').href = match.link_document;
+                } else {
+                    document.getElementById('pm-doc-link-container').classList.add('hidden');
+                }
+                
                 document.getElementById('quick-problem-modal').classList.add('active');
             }
         }
@@ -521,7 +559,7 @@
             // ดึงข้อมูลเฉพาะเครื่องที่เลือก
             const machineData = allData.filter(d => d.machine && d.machine.toUpperCase() === name.toUpperCase());
 
-            // 🌟 1. ดึง Model และ Line เพื่อสร้าง Dropdown
+            // 🌟 ดึง Model และ Line เพื่อสร้าง Dropdown
             const models = [...new Set(machineData.map(d => d.model))].filter(v => v && v !== "-" && v.trim() !== "");
             const lines = [...new Set(machineData.map(d => d.line))].filter(v => v && v !== "-" && v.trim() !== "");
 
@@ -545,16 +583,6 @@
                 mlContainer.classList.add('hidden');
                 modelDropdown.innerHTML = '<option value="">-- All Models --</option>';
                 lineDropdown.innerHTML = '<option value="">-- All Lines --</option>';
-            }
-
-            // 🌟 2. แสดงลิงก์เอกสารหลัก (ถ้ามี)
-            const guidelineContainer = document.getElementById('guideline-link-container');
-            const guidelineBtn = document.getElementById('guideline-url');
-            if (MACHINE_GUIDELINES[name.toUpperCase()]) {
-                guidelineContainer.classList.remove('hidden');
-                guidelineBtn.href = MACHINE_GUIDELINES[name.toUpperCase()];
-            } else {
-                guidelineContainer.classList.add('hidden');
             }
 
             // รีเฟรชรายการปัญหา
@@ -620,16 +648,6 @@
                 document.getElementById('is-solution-text').innerText = targetMatch.solution || "Not specified";
                 document.getElementById('is-cause-text').innerText = targetMatch.cause || "Not specified";
                 
-                // 🌟 จัดการแสดงผลลิงก์เอกสาร (Manual Link)
-                const docContainer = document.getElementById('is-doc-link-container');
-                const docBtn = document.getElementById('is-doc-link');
-                if (targetMatch.link_document && targetMatch.link_document !== "-" && targetMatch.link_document.startsWith("http")) {
-                    docContainer.classList.remove('hidden');
-                    docBtn.href = targetMatch.link_document;
-                } else {
-                    docContainer.classList.add('hidden');
-                }
-
                 // 🌟 จัดการแสดงผลรูปภาพ (Image)
                 const imgContainer = document.getElementById('is-image-container');
                 const imgElement = document.getElementById('is-problem-image');
@@ -638,6 +656,43 @@
                     imgContainer.classList.remove('hidden');
                 } else {
                     imgContainer.classList.add('hidden');
+                }
+
+                // 🌟 จัดการแสดงผลปุ่มเอกสาร 2 แบบในกล่องเดียวกัน
+                const buttonsContainer = document.getElementById('action-buttons-container');
+                const btnMachine = document.getElementById('guideline-url-inside');
+                const btnProblem = document.getElementById('is-doc-link');
+                
+                let hasMachineDoc = false;
+                let hasProblemDoc = false;
+
+                // เช็กว่ามี Machine Guideline หลักไหม
+                if (MACHINE_GUIDELINES[mId.toUpperCase()]) {
+                    btnMachine.classList.remove('hidden');
+                    btnMachine.classList.add('flex');
+                    btnMachine.href = MACHINE_GUIDELINES[mId.toUpperCase()];
+                    hasMachineDoc = true;
+                } else {
+                    btnMachine.classList.add('hidden');
+                    btnMachine.classList.remove('flex');
+                }
+
+                // เช็กว่ามี Problem Specific Manual ไหม
+                if (targetMatch.link_document && targetMatch.link_document !== "-" && targetMatch.link_document.startsWith("http")) {
+                    btnProblem.classList.remove('hidden');
+                    btnProblem.classList.add('flex');
+                    btnProblem.href = targetMatch.link_document;
+                    hasProblemDoc = true;
+                } else {
+                    btnProblem.classList.add('hidden');
+                    btnProblem.classList.remove('flex');
+                }
+
+                // โชว์กรอบปุ่มถ้ามีอย่างน้อย 1 ลิงก์
+                if(hasMachineDoc || hasProblemDoc) {
+                    buttonsContainer.classList.remove('hidden');
+                } else {
+                    buttonsContainer.classList.add('hidden');
                 }
 
                 addLog(match ? "Perfect match solution found." : "General solution suggested.");
@@ -650,7 +705,6 @@
             document.getElementById('is-search').value = '';
             document.getElementById('is-machine-dropdown').value = '';
             document.getElementById('is-model-line-container').classList.add('hidden');
-            document.getElementById('guideline-link-container').classList.add('hidden');
             document.getElementById('is-solution-section').classList.add('hidden');
             document.getElementById('is-problem-manual').value = '';
             document.getElementById('is-problem-dropdown').innerHTML = '<option value="">-- Select an issue from history --</option>';
@@ -804,7 +858,6 @@
             const ctx = document.getElementById('analyticsChart').getContext('2d');
             if (myChart) myChart.destroy();
             
-            // เช็คว่าใช้ Dark Mode อยู่หรือไม่ เพื่อเปลี่ยนสีกราฟให้สวยงาม
             const isDark = document.documentElement.classList.contains('dark');
             const gridColor = isDark ? '#334155' : '#e2e8f0';
             const tickColor = isDark ? '#94a3b8' : '#64748b';
@@ -857,14 +910,27 @@
         }
 
         // --- 5. UI Helpers ---
-        function openLoginModal() { document.getElementById('login-user').value = ''; document.getElementById('login-pass').value = ''; document.getElementById('login-modal').classList.add('active'); }
+        function openLoginModal() { 
+            document.getElementById('login-user').value = ''; 
+            document.getElementById('login-pass').value = ''; 
+            document.getElementById('login-modal').classList.add('active'); 
+        }
         function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); }
         function verifyLogin() {
             if (document.getElementById('login-user').value === "5022825392" && document.getElementById('login-pass').value === "Phonlawat_25392") {
-                isAdmin = true; closeLoginModal(); updateAdminUI(); addLog("Admin mode activated.", "success");
+                isAdmin = true; 
+                closeLoginModal(); 
+                updateAdminUI(); 
+                addLog("Admin mode activated.", "success");
+                resetInactivityTimer(); // เริ่มจับเวลา 10 นาที
             } else { alert("❌ Invalid Credentials!"); }
         }
-        function adminLogout() { isAdmin = false; updateAdminUI(); addLog("Admin logged out."); }
+        function adminLogout() { 
+            isAdmin = false; 
+            updateAdminUI(); 
+            addLog("Admin logged out."); 
+            clearTimeout(inactivityTimer); // ยกเลิกการจับเวลา
+        }
         function updateAdminUI() {
             document.getElementById('admin-login-btn').classList.toggle('hidden', isAdmin);
             document.getElementById('admin-logout-btn').classList.toggle('hidden', !isAdmin);
@@ -880,7 +946,6 @@
             document.querySelectorAll('.sidebar-btn')[btnMap[tabId]].classList.add('active');
             if(window.innerWidth < 1024) toggleSidebar();
             
-            // อัปเดตกราฟเผื่อมีการสลับโหมดสี
             if(tabId === 'statistics') updateAnalytics();
         }
 
@@ -891,7 +956,7 @@
 
         function toggleTheme() { 
             document.documentElement.classList.toggle('dark'); 
-            updateAnalytics(); // อัปเดตสีกราฟ
+            updateAnalytics();
         }
 
         function addLog(msg, type = 'info') { 
