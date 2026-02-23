@@ -8,7 +8,7 @@ import sys
 load_dotenv()
 
 # 2. ตั้งค่าพาธไฟล์ Excel (ตรวจสอบให้มั่นใจว่าไฟล์อยู่ที่นี่จริงๆ)
-EXCEL_PATH = r"C:\data\problem.xlsx" 
+EXCEL_PATH = r"C:\Users\Lenovo\OneDrive\Desktop\Machine-System-Project\problem (1).xlsx" 
 
 def migrate_excel_to_mongodb():
     try:
